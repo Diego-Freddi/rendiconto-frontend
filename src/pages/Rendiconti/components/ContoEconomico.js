@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFormContext, useFieldArray } from 'react-hook-form';
+import { useCategorie } from '../../../contexts/CategoriaContext';
 
 // Componente per singola voce economica - SPOSTATO FUORI per evitare re-render
 const VoceEconomica = ({ fieldName, index, onRemove, errors, categorie, tipo, register }) => (
@@ -78,6 +79,9 @@ const ContoEconomico = () => {
     watch 
   } = useFormContext();
 
+  // Context per categorie
+  const { getCategoriePerTipo } = useCategorie();
+
   // Field arrays per gestire liste dinamiche
   const { fields: entrate, append: appendEntrata, remove: removeEntrata } = useFieldArray({
     control,
@@ -98,33 +102,9 @@ const ContoEconomico = () => {
   const totaleUscite = watchedUscite.reduce((sum, item) => sum + (parseFloat(item?.importo) || 0), 0);
   const saldo = totaleEntrate - totaleUscite;
 
-  // Categorie predefinite per entrate
-  const categorieEntrate = [
-    'Pensione',
-    'Stipendio/Salario',
-    'Rendite immobiliari',
-    'Dividendi/Interessi',
-    'Vendita beni',
-    'Rimborsi',
-    'Donazioni ricevute',
-    'Altro'
-  ];
-
-  // Categorie predefinite per uscite
-  const categorieUscite = [
-    'Spese mediche',
-    'Farmaci',
-    'Alimentari',
-    'Abbigliamento',
-    'Casa e utenze',
-    'Trasporti',
-    'Assicurazioni',
-    'Tasse e imposte',
-    'Spese legali',
-    'Cultura e svago',
-    'Donazioni erogate',
-    'Altro'
-  ];
+  // Categorie dal context
+  const categorieEntrate = getCategoriePerTipo('entrate');
+  const categorieUscite = getCategoriePerTipo('uscite');
 
   return (
     <div className="row">

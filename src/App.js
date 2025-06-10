@@ -8,6 +8,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 // Context
 import { AuthProvider } from './contexts/AuthContext';
 import { RendicontoProvider } from './contexts/RendicontoContext';
+import { CategoriaProvider } from './contexts/CategoriaContext';
 
 // Components
 import Layout from './components/Layout/Layout';
@@ -27,7 +28,8 @@ function App() {
   return (
     <AuthProvider>
       <RendicontoProvider>
-        <Router>
+        <CategoriaProvider>
+          <Router>
     <div className="App">
             <Routes>
               {/* Routes pubbliche */}
@@ -68,7 +70,8 @@ function App() {
               theme="light"
             />
     </div>
-        </Router>
+          </Router>
+        </CategoriaProvider>
       </RendicontoProvider>
     </AuthProvider>
   );
