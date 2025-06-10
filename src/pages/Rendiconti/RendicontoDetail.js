@@ -4,6 +4,7 @@ import { useRendiconto } from '../../contexts/RendicontoContext';
 import { toast } from 'react-toastify';
 import { pdf } from '@react-pdf/renderer';
 import RendicontoPDF from '../../components/PDF/RendicontoPDF';
+import { raggruppaPerCategoria } from '../../utils/categoriaUtils';
 
 const RendicontoDetail = () => {
   const { id } = useParams();
@@ -119,6 +120,10 @@ const RendicontoDetail = () => {
   }
 
   const { datiGenerali, condizioniPersonali, situazionePatrimoniale, contoEconomico, firma } = rendiconto;
+
+  // Raggruppa le voci per categoria
+  const entrateRaggruppate = raggruppaPerCategoria(contoEconomico?.entrate || []);
+  const usciteRaggruppate = raggruppaPerCategoria(contoEconomico?.uscite || []);
 
   return (
     <div className="container-fluid">
@@ -465,15 +470,27 @@ const RendicontoDetail = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {contoEconomico?.entrate?.length > 0 ? (
-                      contoEconomico.entrate.map((entrata, index) => (
+                    {entrateRaggruppate.length > 0 ? (
+                      entrateRaggruppate.map((entrata, index) => (
                         <tr key={index}>
                           <td>
                             <span className="badge bg-success bg-opacity-25 text-success">
                               {entrata.categoria}
                             </span>
+                            {entrata.numeroVoci > 1 && (
+                              <small className="text-muted ms-2">
+                                ({entrata.numeroVoci} voci)
+                              </small>
+                            )}
                           </td>
-                          <td>{entrata.descrizione}</td>
+                          <td>
+                            <div>{entrata.descrizioneCompleta}</div>
+                            {entrata.numeroVoci > 1 && (
+                              <small className="text-muted">
+                                Subtotale di {entrata.numeroVoci} voci
+                              </small>
+                            )}
+                          </td>
                           <td className="text-end fw-bold text-success">
                             {formatCurrency(entrata.importo)}
                           </td>
@@ -487,7 +504,7 @@ const RendicontoDetail = () => {
                       </tr>
                     )}
                     {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - (contoEconomico?.entrate?.length || 0)) }).map((_, index) => (
+                    {Array.from({ length: Math.max(0, 20 - entrateRaggruppate.length) }).map((_, index) => (
                       <tr key={`empty-${index}`} style={{ height: '40px' }}>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
@@ -526,15 +543,27 @@ const RendicontoDetail = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {contoEconomico?.uscite?.length > 0 ? (
-                      contoEconomico.uscite.map((uscita, index) => (
+                    {usciteRaggruppate.length > 0 ? (
+                      usciteRaggruppate.map((uscita, index) => (
                         <tr key={index}>
                           <td>
                             <span className="badge bg-danger bg-opacity-25 text-danger">
                               {uscita.categoria}
                             </span>
+                            {uscita.numeroVoci > 1 && (
+                              <small className="text-muted ms-2">
+                                ({uscita.numeroVoci} voci)
+                              </small>
+                            )}
                           </td>
-                          <td>{uscita.descrizione || 'N/A'}</td>
+                          <td>
+                            <div>{uscita.descrizioneCompleta}</div>
+                            {uscita.numeroVoci > 1 && (
+                              <small className="text-muted">
+                                Subtotale di {uscita.numeroVoci} voci
+                              </small>
+                            )}
+                          </td>
                           <td className="text-end fw-bold text-danger">
                             {formatCurrency(uscita.importo)}
                           </td>
@@ -548,7 +577,7 @@ const RendicontoDetail = () => {
                       </tr>
                     )}
                     {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - (contoEconomico?.uscite?.length || 0)) }).map((_, index) => (
+                    {Array.from({ length: Math.max(0, 20 - usciteRaggruppate.length) }).map((_, index) => (
                       <tr key={`empty-${index}`} style={{ height: '40px' }}>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>

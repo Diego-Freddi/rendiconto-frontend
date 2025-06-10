@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Font
 } from '@react-pdf/renderer';
+import { raggruppaPerCategoriaPDF } from '../../utils/categoriaUtils';
 
 // Registrazione font (opzionale - usa font di sistema se non specificato)
 // Font.register({
@@ -373,14 +374,18 @@ const RendicontoPDF = ({ rendiconto }) => {
 
   const { datiGenerali, condizioniPersonali, situazionePatrimoniale, contoEconomico, firma } = rendiconto;
 
+  // Raggruppa le voci per categoria per il PDF (senza descrizioni)
+  const entrateRaggruppate = raggruppaPerCategoriaPDF(contoEconomico?.entrate || []);
+  const usciteRaggruppate = raggruppaPerCategoriaPDF(contoEconomico?.uscite || []);
+
   // Calcoli totali
   const totalePatrimonio = 
     calculateTotal(situazionePatrimoniale?.beniImmobili) +
     calculateTotal(situazionePatrimoniale?.beniMobili) +
     calculateTotal(situazionePatrimoniale?.titoliConti);
   
-  const totaleEntrate = calculateTotal(contoEconomico?.entrate);
-  const totaleUscite = calculateTotal(contoEconomico?.uscite);
+  const totaleEntrate = calculateTotal(entrateRaggruppate);
+  const totaleUscite = calculateTotal(usciteRaggruppate);
   const saldo = totaleEntrate - totaleUscite;
 
   return (
@@ -630,18 +635,19 @@ const RendicontoPDF = ({ rendiconto }) => {
 
           <View style={styles.table}>
             <View style={[styles.tableRow, styles.tableHeaderSuccess]}>
-              <Text style={styles.tableCellThree}>Categoria</Text>
-              <Text style={styles.tableCellThree}>Descrizione</Text>
+              <Text style={styles.tableCell}>Categoria</Text>
               <Text style={styles.tableCellLast}>Importo</Text>
             </View>
             
-            {contoEconomico?.entrate?.length > 0 ? (
-              contoEconomico.entrate.map((entrata, index) => (
+            {entrateRaggruppate.length > 0 ? (
+              entrateRaggruppate.map((entrata, index) => (
                 <View key={index} style={[styles.tableRow, index % 2 === 1 && styles.tableRowStriped]}>
-                  <Text style={styles.tableCellThree}>
-                    <Text style={styles.badge}>{entrata.categoria}</Text>
+                  <Text style={styles.tableCell}>
+                    {entrata.categoria}
+                    {entrata.numeroVoci > 1 && (
+                      <Text style={styles.textMuted}> ({entrata.numeroVoci} voci)</Text>
+                    )}
                   </Text>
-                  <Text style={styles.tableCellThree}>{entrata.descrizione}</Text>
                   <Text style={[styles.tableCellLast, styles.textSuccess]}>
                     {formatCurrency(entrata.importo)}
                   </Text>
@@ -649,26 +655,23 @@ const RendicontoPDF = ({ rendiconto }) => {
               ))
             ) : (
               <View style={styles.tableRow}>
-                <Text style={[styles.tableCellThree, { textAlign: 'center', fontStyle: 'italic', color: '#6c757d' }]}>
+                <Text style={[styles.tableCell, { textAlign: 'center', fontStyle: 'italic', color: '#6c757d' }]}>
                   Nessuna entrata inserita
                 </Text>
-                <Text style={styles.tableCellThree}>-</Text>
                 <Text style={styles.tableCellLast}>€ 0,00</Text>
               </View>
             )}
             
             {/* Righe vuote per completare la pagina */}
-            {Array.from({ length: Math.max(0, 12 - (contoEconomico?.entrate?.length || 0)) }).map((_, index) => (
+            {Array.from({ length: Math.max(0, 15 - entrateRaggruppate.length) }).map((_, index) => (
               <View key={`empty-${index}`} style={[styles.tableRow, { minHeight: 30 }, index % 2 === 1 && styles.tableRowStriped]}>
-                <Text style={styles.tableCellThree}> </Text>
-                <Text style={styles.tableCellThree}> </Text>
+                <Text style={styles.tableCell}> </Text>
                 <Text style={styles.tableCellLast}> </Text>
               </View>
             ))}
             
             <View style={[styles.tableRow, styles.tableFooter]}>
-              <Text style={styles.tableCellThree}>TOTALE ENTRATE</Text>
-              <Text style={styles.tableCellThree}></Text>
+              <Text style={styles.tableCell}>TOTALE ENTRATE</Text>
               <Text style={styles.tableCellLast}>
                 {formatCurrency(totaleEntrate)}
               </Text>
@@ -684,16 +687,19 @@ const RendicontoPDF = ({ rendiconto }) => {
 
           <View style={styles.table}>
             <View style={[styles.tableRow, styles.tableHeaderDanger]}>
-              <Text style={styles.tableCellThree}>Categoria</Text>
-              <Text style={styles.tableCellThree}>Descrizione</Text>
+              <Text style={styles.tableCell}>Categoria</Text>
               <Text style={styles.tableCellLast}>Importo</Text>
             </View>
             
-            {contoEconomico?.uscite?.length > 0 ? (
-              contoEconomico.uscite.map((uscita, index) => (
+            {usciteRaggruppate.length > 0 ? (
+              usciteRaggruppate.map((uscita, index) => (
                 <View key={index} style={[styles.tableRow, index % 2 === 1 && styles.tableRowStriped]}>
-                  <Text style={styles.tableCellThree}>{uscita.categoria}</Text>
-                  <Text style={styles.tableCellThree}>{uscita.descrizione || 'N/A'}</Text>
+                  <Text style={styles.tableCell}>
+                    {uscita.categoria}
+                    {uscita.numeroVoci > 1 && (
+                      <Text style={styles.textMuted}> ({uscita.numeroVoci} voci)</Text>
+                    )}
+                  </Text>
                   <Text style={[styles.tableCellLast, styles.textDanger]}>
                     {formatCurrency(uscita.importo)}
                   </Text>
@@ -701,26 +707,23 @@ const RendicontoPDF = ({ rendiconto }) => {
               ))
             ) : (
               <View style={styles.tableRow}>
-                <Text style={[styles.tableCellThree, { textAlign: 'center', fontStyle: 'italic', color: '#6c757d' }]}>
+                <Text style={[styles.tableCell, { textAlign: 'center', fontStyle: 'italic', color: '#6c757d' }]}>
                   Nessuna uscita inserita
                 </Text>
-                <Text style={styles.tableCellThree}>-</Text>
                 <Text style={styles.tableCellLast}>€ 0,00</Text>
               </View>
             )}
             
             {/* Righe vuote per completare la pagina */}
-            {Array.from({ length: Math.max(0, 12 - (contoEconomico?.uscite?.length || 0)) }).map((_, index) => (
+            {Array.from({ length: Math.max(0, 15 - usciteRaggruppate.length) }).map((_, index) => (
               <View key={`empty-${index}`} style={[styles.tableRow, { minHeight: 30 }, index % 2 === 1 && styles.tableRowStriped]}>
-                <Text style={styles.tableCellThree}> </Text>
-                <Text style={styles.tableCellThree}> </Text>
+                <Text style={styles.tableCell}> </Text>
                 <Text style={styles.tableCellLast}> </Text>
               </View>
             ))}
             
             <View style={[styles.tableRow, styles.tableFooter]}>
-              <Text style={styles.tableCellThree}>TOTALE USCITE</Text>
-              <Text style={styles.tableCellThree}></Text>
+              <Text style={styles.tableCell}>TOTALE USCITE</Text>
               <Text style={styles.tableCellLast}>
                 {formatCurrency(totaleUscite)}
               </Text>
