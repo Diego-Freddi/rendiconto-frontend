@@ -109,7 +109,7 @@ const RendicontoDetail = () => {
 
   if (!rendiconto) {
     return (
-      <div>
+      <div className="container-fluid">
         <div className="alert alert-warning">
           <h4>Rendiconto non trovato</h4>
           <p>Il rendiconto richiesto non esiste o non hai i permessi per visualizzarlo.</p>
@@ -128,31 +128,24 @@ const RendicontoDetail = () => {
   const usciteRaggruppate = raggruppaPerCategoria(contoEconomico?.uscite || []);
 
   return (
-    <div>
+    <div className="container-fluid">
       {/* Header con azioni */}
       <div className="row mb-4">
         <div className="col-12">
-          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-            <div className="flex-grow-1">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
               <h2 className="mb-1">Dettagli Rendiconto</h2>
               <p className="text-muted mb-0">
-                <span className="d-block d-sm-inline">
-                  {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}
-                </span>
-                <span className="d-none d-sm-inline"> - </span>
-                <span className="d-block d-sm-inline">
-                  {rendiconto.periodoFormattato || 
-                    (datiGenerali?.dataInizio && datiGenerali?.dataFine ? 
-                      `${formatDate(datiGenerali.dataInizio)} - ${formatDate(datiGenerali.dataFine)}` : 
-                      `Anno ${datiGenerali?.anno || 'N/A'}`
-                    )
-                  }
-                </span>
+                {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome} - 
+                {rendiconto.periodoFormattato || 
+                  (datiGenerali?.dataInizio && datiGenerali?.dataFine ? 
+                    `${formatDate(datiGenerali.dataInizio)} - ${formatDate(datiGenerali.dataFine)}` : 
+                    `Anno ${datiGenerali?.anno || 'N/A'}`
+                  )
+                }
               </p>
             </div>
-            
-            {/* Azioni Desktop */}
-            <div className="d-none d-md-flex btn-group">
+            <div className="btn-group">
               <Link 
                 to="/rendiconti" 
                 className="btn btn-outline-secondary"
@@ -177,63 +170,28 @@ const RendicontoDetail = () => {
                 Esporta PDF
               </button>
             </div>
-
-            {/* Azioni Mobile */}
-            <div className="d-md-none w-100">
-              <div className="row g-2">
-                <div className="col-6">
-                  <Link 
-                    to="/rendiconti" 
-                    className="btn btn-outline-secondary w-100"
-                  >
-                    <i className="bi bi-arrow-left me-1"></i>
-                    Indietro
-                  </Link>
-                </div>
-                <div className="col-6">
-                  <button 
-                    className="btn btn-success w-100"
-                    onClick={handleDownloadPDF}
-                  >
-                    <i className="bi bi-file-pdf me-1"></i>
-                    PDF
-                  </button>
-                </div>
-                {rendiconto.stato !== 'inviato' && (
-                  <div className="col-12">
-                    <Link 
-                      to={`/rendiconti/${id}/modifica`} 
-                      className="btn btn-primary w-100"
-                    >
-                      <i className="bi bi-pencil me-2"></i>
-                      Modifica Rendiconto
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Documento stile PDF */}
       <div className="row justify-content-center">
-        <div className="col-12">
+        <div className="col-12 col-lg-10 col-xl-8">
           
           {/* PAGINA 1: DATI GENERALI */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-3 p-md-4" style={{ backgroundColor: '#fafafa' }}>
+            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
               
               {/* INTESTAZIONE */}
-              <div className="text-center mb-4 mb-md-5">
-                <h1 className="h3 h-md-1 fw-bold text-primary mb-3">
+              <div className="text-center mb-5">
+                <h1 className="display-6 fw-bold text-primary mb-3">
                   MODELLO DI RENDICONTO
                 </h1>
                 <div className="border-top border-bottom py-3">
-                  <h4 className="h5 h-md-4 mb-1">
+                  <h4 className="mb-1">
                     Amministrazione di sostegno/tutela: R.G. n. {datiGenerali?.rg_numero || '_______________'}
                   </h4>
-                  <p className="text-muted mb-0 small">
+                  <p className="text-muted mb-0">
                     Periodo: {rendiconto.periodoFormattato || 
                       (datiGenerali?.dataInizio && datiGenerali?.dataFine ? 
                         `${formatDate(datiGenerali.dataInizio)} - ${formatDate(datiGenerali.dataFine)}` : 
@@ -244,661 +202,562 @@ const RendicontoDetail = () => {
                 </div>
               </div>
 
-              {/* DATI GENERALI */}
-              <div className="mb-4">
-                <h3 className="h5 h-md-4 border-bottom pb-2 mb-3 text-primary">
-                  <i className="bi bi-info-circle me-2"></i>
-                  Dati Generali
+              {/* SEZIONE 1: DATI GENERALI */}
+              <div className="mb-5">
+                <h3 className="border-bottom pb-2 mb-4 text-primary">
+                  <i className="bi bi-person-badge me-2"></i>
+                  1. DATI GENERALI
                 </h3>
                 
                 <div className="row">
-                  {/* Beneficiario */}
-                  <div className="col-12 col-lg-6 mb-3">
+                  <div className="col-md-6 mb-4">
                     <div className="card h-100">
                       <div className="card-header bg-light">
-                        <h6 className="mb-0">
+                        <h5 className="card-title mb-0">
                           <i className="bi bi-person me-2"></i>
-                          Beneficiario
-                        </h6>
+                          Beneficiario/Interdetto
+                        </h5>
                       </div>
                       <div className="card-body">
-                        <div className="table-responsive">
-                          <table className="table table-borderless table-sm mb-0">
-                            <tbody>
-                              <tr>
-                                <td className="fw-medium text-muted">Nome:</td>
-                                <td>{rendiconto.beneficiarioId?.nome || 'N/A'}</td>
-                              </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Cognome:</td>
-                                <td>{rendiconto.beneficiarioId?.cognome || 'N/A'}</td>
-                              </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Codice Fiscale:</td>
-                                <td>
-                                  <code className="small">{rendiconto.beneficiarioId?.codiceFiscale || 'N/A'}</code>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Data di nascita:</td>
-                                <td>{formatDate(rendiconto.beneficiarioId?.dataNascita)}</td>
-                              </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Luogo di nascita:</td>
-                                <td>{rendiconto.beneficiarioId?.luogoNascita || 'N/A'}</td>
-                              </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Indirizzo:</td>
-                                <td className="small">{formatAddress(rendiconto.beneficiarioId?.indirizzo)}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+                        <table className="table table-borderless table-sm">
+                          <tbody>
+                            <tr>
+                              <td className="fw-bold">Nome:</td>
+                              <td>{rendiconto.beneficiarioId?.nome || 'Non specificato'}</td>
+                            </tr>
+                            <tr>
+                              <td className="fw-bold">Cognome:</td>
+                              <td>{rendiconto.beneficiarioId?.cognome || 'Non specificato'}</td>
+                            </tr>
+                            <tr>
+                              <td className="fw-bold">Codice Fiscale:</td>
+                              <td className="font-monospace">{rendiconto.beneficiarioId?.codiceFiscale || 'Non specificato'}</td>
+                            </tr>
+                            <tr>
+                              <td className="fw-bold">Data di Nascita:</td>
+                              <td>{formatDate(rendiconto.beneficiarioId?.dataNascita) || 'Non specificata'}</td>
+                            </tr>
+                            <tr>
+                              <td className="fw-bold">Luogo di Nascita:</td>
+                              <td>{rendiconto.beneficiarioId?.luogoNascita || 'Non specificato'}</td>
+                            </tr>
+                            <tr>
+                              <td className="fw-bold">Indirizzo:</td>
+                              <td>{formatAddress(rendiconto.beneficiarioId?.indirizzo) || 'Non specificato'}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
 
-                  {/* Amministratore */}
-                  <div className="col-12 col-lg-6 mb-3">
+                  <div className="col-md-6 mb-4">
                     <div className="card h-100">
                       <div className="card-header bg-light">
-                        <h6 className="mb-0">
-                          <i className="bi bi-person-badge me-2"></i>
-                          Amministratore
-                        </h6>
+                        <h5 className="card-title mb-0">
+                          <i className="bi bi-person-check me-2"></i>
+                          Amministratore di Sostegno
+                        </h5>
                       </div>
                       <div className="card-body">
-                        <div className="table-responsive">
-                          <table className="table table-borderless table-sm mb-0">
-                            <tbody>
+                        <table className="table table-borderless table-sm">
+                          <tbody>
+                            <tr>
+                              <td className="fw-bold">Nome:</td>
+                              <td>{user?.nome || 'Non specificato'}</td>
+                            </tr>
+                            <tr>
+                              <td className="fw-bold">Cognome:</td>
+                              <td>{user?.cognome || 'Non specificato'}</td>
+                            </tr>
+                            <tr>
+                              <td className="fw-bold">Codice Fiscale:</td>
+                              <td className="font-monospace">{user?.codiceFiscale || 'Non specificato'}</td>
+                            </tr>
+                            <tr>
+                              <td className="fw-bold">Email:</td>
+                              <td>{user?.email || 'Non specificato'}</td>
+                            </tr>
+                            {user?.professione && (
                               <tr>
-                                <td className="fw-medium text-muted">Nome:</td>
-                                <td>{user?.nome || 'N/A'}</td>
+                                <td className="fw-bold">Professione:</td>
+                                <td>{user.professione}</td>
                               </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Cognome:</td>
-                                <td>{user?.cognome || 'N/A'}</td>
-                              </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Codice Fiscale:</td>
-                                <td>
-                                  <code className="small">{user?.codiceFiscale || 'N/A'}</code>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Data di nascita:</td>
-                                <td>{formatDate(user?.dataNascita)}</td>
-                              </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Luogo di nascita:</td>
-                                <td>{user?.luogoNascita || 'N/A'}</td>
-                              </tr>
-                              <tr>
-                                <td className="fw-medium text-muted">Indirizzo:</td>
-                                <td className="small">{formatAddress(user?.indirizzo)}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+                            )}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* CONDIZIONI PERSONALI */}
-              <div className="mb-4">
-                <h3 className="h5 h-md-4 border-bottom pb-2 mb-3 text-primary">
-                  <i className="bi bi-heart me-2"></i>
-                  Condizioni Personali del Beneficiario
+              {/* SEZIONE 2: CONDIZIONI PERSONALI */}
+              <div className="mb-5">
+                <h3 className="border-bottom pb-2 mb-4 text-primary">
+                  <i className="bi bi-heart-pulse me-2"></i>
+                  2. CONDIZIONI PERSONALI DEL BENEFICIARIO
                 </h3>
                 <div className="card">
                   <div className="card-body">
-                    {condizioniPersonali?.descrizione ? (
+                    {rendiconto.beneficiarioId?.condizioniPersonali ? (
                       <div className="text-justify" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                        {condizioniPersonali.descrizione}
+                        {rendiconto.beneficiarioId.condizioniPersonali}
                       </div>
                     ) : (
-                      <p className="text-muted fst-italic">Nessuna descrizione inserita</p>
+                      <p className="text-muted fst-italic">Nessuna informazione inserita</p>
                     )}
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
 
           {/* PAGINA 2: BENI IMMOBILI */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-3 p-md-4" style={{ backgroundColor: '#fafafa' }}>
-              <h3 className="h5 h-md-4 border-bottom pb-2 mb-3 text-primary">
+            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+              <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-house me-2"></i>
-                Situazione Patrimoniale - Beni Immobili
+                3. SITUAZIONE PATRIMONIALE - BENI IMMOBILI
               </h3>
               
-              {situazionePatrimoniale?.beniImmobili?.length > 0 ? (
-                <>
-                  {/* Vista Desktop */}
-                  <div className="d-none d-md-block">
-                    <div className="table-responsive">
-                      <table className="table table-striped table-hover">
-                        <thead className="table-dark">
-                          <tr>
-                            <th>Descrizione</th>
-                            <th>Ubicazione</th>
-                            <th className="text-end">Valore</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {situazionePatrimoniale.beniImmobili.map((bene, index) => (
-                            <tr key={index}>
-                              <td>{bene.descrizione}</td>
-                              <td className="small">{bene.ubicazione}</td>
-                              <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="table-light">
-                          <tr>
-                            <th colSpan="2" className="text-end">TOTALE BENI IMMOBILI:</th>
-                            <th className="text-end text-primary">
-                              {formatCurrency(calculateTotal(situazionePatrimoniale.beniImmobili))}
-                            </th>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Vista Mobile */}
-                  <div className="d-md-none">
-                    <div className="row">
-                      {situazionePatrimoniale.beniImmobili.map((bene, index) => (
-                        <div key={index} className="col-12 mb-3">
-                          <div className="card">
-                            <div className="card-body">
-                              <h6 className="card-title">{bene.descrizione}</h6>
-                              <p className="card-text small text-muted mb-2">{bene.ubicazione}</p>
-                              <div className="d-flex justify-content-between align-items-center">
-                                <span className="text-muted">Valore:</span>
-                                <span className="fw-bold text-primary">{formatCurrency(bene.valore)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="card bg-light">
-                      <div className="card-body">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <strong>TOTALE BENI IMMOBILI:</strong>
-                          <strong className="text-primary">
-                            {formatCurrency(calculateTotal(situazionePatrimoniale.beniImmobili))}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <i className="bi bi-house text-muted" style={{ fontSize: '3rem' }}></i>
-                  <p className="text-muted mt-2">Nessun bene immobile registrato</p>
-                </div>
-              )}
+              <div className="table-responsive">
+                <table className="table table-striped table-hover">
+                  <thead className="table-dark">
+                    <tr>
+                      <th style={{ width: '70%' }}>Descrizione</th>
+                      <th className="text-end" style={{ width: '30%' }}>Valore</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili?.length > 0 ? (
+                      rendiconto.beneficiarioId.situazionePatrimoniale.beniImmobili.map((bene, index) => (
+                        <tr key={index}>
+                          <td>{bene.descrizione}</td>
+                          <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="2" className="text-center text-muted fst-italic py-5">
+                          Nessun bene immobile inserito
+                        </td>
+                      </tr>
+                    )}
+                    {/* Righe vuote per completare la pagina */}
+                    {Array.from({ length: Math.max(0, 20 - (rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili?.length || 0)) }).map((_, index) => (
+                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="table-secondary">
+                    <tr>
+                      <th>TOTALE BENI IMMOBILI</th>
+                      <th className="text-end">
+                        {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili))}
+                      </th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
 
           {/* PAGINA 3: BENI MOBILI */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-3 p-md-4" style={{ backgroundColor: '#fafafa' }}>
-              <h3 className="h5 h-md-4 border-bottom pb-2 mb-3 text-primary">
+            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+              <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-car-front me-2"></i>
-                Situazione Patrimoniale - Beni Mobili
+                3. SITUAZIONE PATRIMONIALE - BENI MOBILI
               </h3>
               
-              {situazionePatrimoniale?.beniMobili?.length > 0 ? (
-                <>
-                  {/* Vista Desktop */}
-                  <div className="d-none d-md-block">
-                    <div className="table-responsive">
-                      <table className="table table-striped table-hover">
-                        <thead className="table-dark">
-                          <tr>
-                            <th>Descrizione</th>
-                            <th className="text-end">Valore</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {situazionePatrimoniale.beniMobili.map((bene, index) => (
-                            <tr key={index}>
-                              <td>{bene.descrizione}</td>
-                              <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="table-light">
-                          <tr>
-                            <th className="text-end">TOTALE BENI MOBILI:</th>
-                            <th className="text-end text-primary">
-                              {formatCurrency(calculateTotal(situazionePatrimoniale.beniMobili))}
-                            </th>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Vista Mobile */}
-                  <div className="d-md-none">
-                    <div className="row">
-                      {situazionePatrimoniale.beniMobili.map((bene, index) => (
-                        <div key={index} className="col-12 mb-3">
-                          <div className="card">
-                            <div className="card-body">
-                              <div className="d-flex justify-content-between align-items-center">
-                                <h6 className="card-title mb-0">{bene.descrizione}</h6>
-                                <span className="fw-bold text-primary">{formatCurrency(bene.valore)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="card bg-light">
-                      <div className="card-body">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <strong>TOTALE BENI MOBILI:</strong>
-                          <strong className="text-primary">
-                            {formatCurrency(calculateTotal(situazionePatrimoniale.beniMobili))}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <i className="bi bi-car-front text-muted" style={{ fontSize: '3rem' }}></i>
-                  <p className="text-muted mt-2">Nessun bene mobile registrato</p>
-                </div>
-              )}
+              <div className="table-responsive">
+                <table className="table table-striped table-hover">
+                  <thead className="table-dark">
+                    <tr>
+                      <th style={{ width: '70%' }}>Descrizione</th>
+                      <th className="text-end" style={{ width: '30%' }}>Valore</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili?.length > 0 ? (
+                      rendiconto.beneficiarioId.situazionePatrimoniale.beniMobili.map((bene, index) => (
+                        <tr key={index}>
+                          <td>{bene.descrizione}</td>
+                          <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="2" className="text-center text-muted fst-italic py-5">
+                          Nessun bene mobile inserito
+                        </td>
+                      </tr>
+                    )}
+                    {/* Righe vuote per completare la pagina */}
+                    {Array.from({ length: Math.max(0, 20 - (rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili?.length || 0)) }).map((_, index) => (
+                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="table-secondary">
+                    <tr>
+                      <th>TOTALE BENI MOBILI</th>
+                      <th className="text-end">
+                        {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili))}
+                      </th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
 
-          {/* PAGINA 4: TITOLI E CONTI */}
+          {/* PAGINA 4: TITOLI, FONDI E CONTI */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-3 p-md-4" style={{ backgroundColor: '#fafafa' }}>
-              <h3 className="h5 h-md-4 border-bottom pb-2 mb-3 text-primary">
+            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+              <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-bank me-2"></i>
-                Situazione Patrimoniale - Titoli, Fondi e Conti Correnti
+                3. SITUAZIONE PATRIMONIALE - TITOLI, FONDI E CONTI CORRENTI
               </h3>
               
-              {situazionePatrimoniale?.titoliConti?.length > 0 ? (
-                <>
-                  {/* Vista Desktop */}
-                  <div className="d-none d-md-block">
-                    <div className="table-responsive">
-                      <table className="table table-striped table-hover">
-                        <thead className="table-dark">
-                          <tr>
-                            <th>Descrizione</th>
-                            <th>Istituto</th>
-                            <th className="text-end">Valore</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {situazionePatrimoniale.titoliConti.map((titolo, index) => (
-                            <tr key={index}>
-                              <td>{titolo.descrizione}</td>
-                              <td>{titolo.istituto || 'N/A'}</td>
-                              <td className="text-end fw-bold">{formatCurrency(titolo.valore)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="table-light">
-                          <tr>
-                            <th colSpan="2" className="text-end">TOTALE TITOLI E CONTI:</th>
-                            <th className="text-end text-primary">
-                              {formatCurrency(calculateTotal(situazionePatrimoniale.titoliConti))}
-                            </th>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Vista Mobile */}
-                  <div className="d-md-none">
-                    <div className="row">
-                      {situazionePatrimoniale.titoliConti.map((titolo, index) => (
-                        <div key={index} className="col-12 mb-3">
-                          <div className="card">
-                            <div className="card-body">
-                              <h6 className="card-title">{titolo.descrizione}</h6>
-                              <p className="card-text small text-muted mb-2">{titolo.istituto || 'N/A'}</p>
-                              <div className="d-flex justify-content-between align-items-center">
-                                <span className="text-muted">Valore:</span>
-                                <span className="fw-bold text-primary">{formatCurrency(titolo.valore)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="card bg-light">
-                      <div className="card-body">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <strong>TOTALE TITOLI E CONTI:</strong>
-                          <strong className="text-primary">
-                            {formatCurrency(calculateTotal(situazionePatrimoniale.titoliConti))}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <i className="bi bi-bank text-muted" style={{ fontSize: '3rem' }}></i>
-                  <p className="text-muted mt-2">Nessun titolo o conto registrato</p>
-                </div>
-              )}
+              <div className="table-responsive">
+                <table className="table table-striped table-hover">
+                  <thead className="table-dark">
+                    <tr>
+                      <th style={{ width: '70%' }}>Descrizione</th>
+                      <th className="text-end" style={{ width: '30%' }}>Valore</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti?.length > 0 ? (
+                      rendiconto.beneficiarioId.situazionePatrimoniale.titoliConti.map((bene, index) => (
+                        <tr key={index}>
+                          <td>{bene.descrizione}</td>
+                          <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="2" className="text-center text-muted fst-italic py-5">
+                          Nessun titolo o conto inserito
+                        </td>
+                      </tr>
+                    )}
+                    {/* Righe vuote per completare la pagina */}
+                    {Array.from({ length: Math.max(0, 20 - (rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti?.length || 0)) }).map((_, index) => (
+                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="table-secondary">
+                    <tr>
+                      <th>TOTALE TITOLI E CONTI</th>
+                      <th className="text-end">
+                        {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti))}
+                      </th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
 
           {/* PAGINA 5: ENTRATE */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-3 p-md-4" style={{ backgroundColor: '#fafafa' }}>
-              <h3 className="h5 h-md-4 border-bottom pb-2 mb-3 text-success">
-                <i className="bi bi-arrow-down-circle me-2"></i>
-                Conto Economico - Entrate
+            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+              <h3 className="border-bottom pb-2 mb-4 text-primary">
+                <i className="bi bi-plus-circle me-2"></i>
+                4. CONTO ECONOMICO - ENTRATE
               </h3>
               
-              {contoEconomico?.entrate?.length > 0 ? (
-                <>
-                  {/* Vista Desktop */}
-                  <div className="d-none d-md-block">
-                    <div className="table-responsive">
-                      <table className="table table-striped table-hover">
-                        <thead className="table-success">
-                          <tr>
-                            <th>Descrizione</th>
-                            <th className="text-end">Importo</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {contoEconomico.entrate.map((entrata, index) => (
-                            <tr key={index}>
-                              <td>{entrata.descrizione}</td>
-                              <td className="text-end fw-bold text-success">{formatCurrency(entrata.importo)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="table-light">
-                          <tr>
-                            <th className="text-end">TOTALE ENTRATE:</th>
-                            <th className="text-end text-success">
-                              {formatCurrency(calculateTotal(contoEconomico.entrate))}
-                            </th>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Vista Mobile */}
-                  <div className="d-md-none">
-                    <div className="row">
-                      {contoEconomico.entrate.map((entrata, index) => (
-                        <div key={index} className="col-12 mb-3">
-                          <div className="card border-success">
-                            <div className="card-body">
-                              <div className="d-flex justify-content-between align-items-center">
-                                <h6 className="card-title mb-0">{entrata.descrizione}</h6>
-                                <span className="fw-bold text-success">{formatCurrency(entrata.importo)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="card bg-success text-white">
-                      <div className="card-body">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <strong>TOTALE ENTRATE:</strong>
-                          <strong>{formatCurrency(calculateTotal(contoEconomico.entrate))}</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <i className="bi bi-arrow-down-circle text-muted" style={{ fontSize: '3rem' }}></i>
-                  <p className="text-muted mt-2">Nessuna entrata registrata</p>
-                </div>
-              )}
+              <div className="table-responsive">
+                <table className="table table-striped table-hover">
+                  <thead className="table-success">
+                    <tr>
+                      <th style={{ width: '25%' }}>Categoria</th>
+                      <th style={{ width: '45%' }}>Descrizione</th>
+                      <th className="text-end" style={{ width: '30%' }}>Importo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {entrateRaggruppate.length > 0 ? (
+                      entrateRaggruppate.map((entrata, index) => (
+                        <tr key={index}>
+                          <td>
+                            <span className="badge bg-success bg-opacity-25 text-success">
+                              {entrata.categoria}
+                            </span>
+                            {entrata.numeroVoci > 1 && (
+                              <small className="text-muted ms-2">
+                                ({entrata.numeroVoci} voci)
+                              </small>
+                            )}
+                          </td>
+                          <td>
+                            <div>{entrata.descrizioneCompleta}</div>
+                            {entrata.numeroVoci > 1 && (
+                              <small className="text-muted">
+                                Subtotale di {entrata.numeroVoci} voci
+                              </small>
+                            )}
+                          </td>
+                          <td className="text-end fw-bold text-success">
+                            {formatCurrency(entrata.importo)}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="3" className="text-center text-muted fst-italic py-5">
+                          Nessuna entrata inserita
+                        </td>
+                      </tr>
+                    )}
+                    {/* Righe vuote per completare la pagina */}
+                    {Array.from({ length: Math.max(0, 20 - entrateRaggruppate.length) }).map((_, index) => (
+                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="table-success">
+                    <tr>
+                      <th colSpan="2">TOTALE ENTRATE</th>
+                      <th className="text-end text-success">
+                        {formatCurrency(calculateTotal(contoEconomico?.entrate))}
+                      </th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
 
           {/* PAGINA 6: USCITE */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-3 p-md-4" style={{ backgroundColor: '#fafafa' }}>
-              <h3 className="h5 h-md-4 border-bottom pb-2 mb-3 text-danger">
-                <i className="bi bi-arrow-up-circle me-2"></i>
-                Conto Economico - Uscite
+            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+              <h3 className="border-bottom pb-2 mb-4 text-primary">
+                <i className="bi bi-dash-circle me-2"></i>
+                4. CONTO ECONOMICO - USCITE
               </h3>
               
-              {contoEconomico?.uscite?.length > 0 ? (
-                <>
-                  {/* Vista Desktop */}
-                  <div className="d-none d-md-block">
-                    <div className="table-responsive">
-                      <table className="table table-striped table-hover">
-                        <thead className="table-danger">
-                          <tr>
-                            <th>Categoria</th>
-                            <th>Descrizione</th>
-                            <th className="text-end">Importo</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {contoEconomico.uscite.map((uscita, index) => (
-                            <tr key={index}>
-                              <td>
-                                <span className="badge bg-secondary">{uscita.categoria}</span>
-                              </td>
-                              <td>{uscita.descrizione}</td>
-                              <td className="text-end fw-bold text-danger">{formatCurrency(uscita.importo)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="table-light">
-                          <tr>
-                            <th colSpan="2" className="text-end">TOTALE USCITE:</th>
-                            <th className="text-end text-danger">
-                              {formatCurrency(calculateTotal(contoEconomico.uscite))}
-                            </th>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Vista Mobile */}
-                  <div className="d-md-none">
-                    <div className="row">
-                      {contoEconomico.uscite.map((uscita, index) => (
-                        <div key={index} className="col-12 mb-3">
-                          <div className="card border-danger">
-                            <div className="card-body">
-                              <div className="d-flex justify-content-between align-items-start mb-2">
-                                <h6 className="card-title mb-0">{uscita.descrizione}</h6>
-                                <span className="fw-bold text-danger">{formatCurrency(uscita.importo)}</span>
-                              </div>
-                              <span className="badge bg-secondary">{uscita.categoria}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="card bg-danger text-white">
-                      <div className="card-body">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <strong>TOTALE USCITE:</strong>
-                          <strong>{formatCurrency(calculateTotal(contoEconomico.uscite))}</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <i className="bi bi-arrow-up-circle text-muted" style={{ fontSize: '3rem' }}></i>
-                  <p className="text-muted mt-2">Nessuna uscita registrata</p>
-                </div>
-              )}
+              <div className="table-responsive">
+                <table className="table table-striped table-hover">
+                  <thead className="table-danger">
+                    <tr>
+                      <th style={{ width: '25%' }}>Categoria</th>
+                      <th style={{ width: '45%' }}>Descrizione</th>
+                      <th className="text-end" style={{ width: '30%' }}>Importo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {usciteRaggruppate.length > 0 ? (
+                      usciteRaggruppate.map((uscita, index) => (
+                        <tr key={index}>
+                          <td>
+                            <span className="badge bg-danger bg-opacity-25 text-danger">
+                              {uscita.categoria}
+                            </span>
+                            {uscita.numeroVoci > 1 && (
+                              <small className="text-muted ms-2">
+                                ({uscita.numeroVoci} voci)
+                              </small>
+                            )}
+                          </td>
+                          <td>
+                            <div>{uscita.descrizioneCompleta}</div>
+                            {uscita.numeroVoci > 1 && (
+                              <small className="text-muted">
+                                Subtotale di {uscita.numeroVoci} voci
+                              </small>
+                            )}
+                          </td>
+                          <td className="text-end fw-bold text-danger">
+                            {formatCurrency(uscita.importo)}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="3" className="text-center text-muted fst-italic py-5">
+                          Nessuna uscita inserita
+                        </td>
+                      </tr>
+                    )}
+                    {/* Righe vuote per completare la pagina */}
+                    {Array.from({ length: Math.max(0, 20 - usciteRaggruppate.length) }).map((_, index) => (
+                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="table-danger">
+                    <tr>
+                      <th colSpan="2">TOTALE USCITE</th>
+                      <th className="text-end text-danger">
+                        {formatCurrency(calculateTotal(contoEconomico?.uscite))}
+                      </th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
 
           {/* PAGINA 7: SITUAZIONE COMPLESSIVA E FIRMA */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-3 p-md-4" style={{ backgroundColor: '#fafafa' }}>
-              <h3 className="h5 h-md-4 border-bottom pb-2 mb-4 text-primary">
+            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+              <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-calculator me-2"></i>
-                Situazione Economica Complessiva
+                5. SITUAZIONE COMPLESSIVA
               </h3>
-              
+
               {/* Riepilogo Totali */}
-              <div className="row mb-4">
-                <div className="col-12 col-md-6 col-lg-3 mb-3">
-                  <div className="card bg-info text-white h-100">
-                    <div className="card-body text-center">
-                      <i className="bi bi-house-fill mb-2" style={{ fontSize: '2rem' }}></i>
-                      <h6 className="card-title">Totale Patrimonio</h6>
-                      <h4 className="mb-0">
-                        {formatCurrency(
-                          calculateTotal(situazionePatrimoniale?.beniImmobili) +
-                          calculateTotal(situazionePatrimoniale?.beniMobili) +
-                          calculateTotal(situazionePatrimoniale?.titoliConti)
-                        )}
-                      </h4>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="col-12 col-md-6 col-lg-3 mb-3">
-                  <div className="card bg-success text-white h-100">
-                    <div className="card-body text-center">
-                      <i className="bi bi-arrow-down-circle-fill mb-2" style={{ fontSize: '2rem' }}></i>
-                      <h6 className="card-title">Totale Entrate</h6>
-                      <h4 className="mb-0">{formatCurrency(calculateTotal(contoEconomico?.entrate))}</h4>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="col-12 col-md-6 col-lg-3 mb-3">
-                  <div className="card bg-danger text-white h-100">
-                    <div className="card-body text-center">
-                      <i className="bi bi-arrow-up-circle-fill mb-2" style={{ fontSize: '2rem' }}></i>
-                      <h6 className="card-title">Totale Uscite</h6>
-                      <h4 className="mb-0">{formatCurrency(calculateTotal(contoEconomico?.uscite))}</h4>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="col-12 col-md-6 col-lg-3 mb-3">
-                  <div className={`card text-white h-100 ${
-                    (calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)) >= 0 
-                      ? 'bg-primary' 
-                      : 'bg-warning'
-                  }`}>
-                    <div className="card-body text-center">
-                      <i className="bi bi-calculator-fill mb-2" style={{ fontSize: '2rem' }}></i>
-                      <h6 className="card-title">Saldo</h6>
-                      <h4 className="mb-0">
-                        {formatCurrency(calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite))}
-                      </h4>
-                    </div>
+              <div className="row mb-5">
+                <div className="col-12">
+                  <div className="table-responsive">
+                    <table className="table table-bordered table-lg">
+                      <tbody>
+                        <tr className="table-info">
+                          <td className="fw-bold fs-5">VALORE TOTALE DEL PATRIMONIO</td>
+                          <td className="text-end fw-bold fs-5">
+                            {formatCurrency(
+                                              calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili) +
+                calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili) +
+                calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti)
+                            )}
+                          </td>
+                        </tr>
+                        <tr className="table-success">
+                          <td className="fw-bold fs-5">TOTALE ENTRATE</td>
+                          <td className="text-end fw-bold fs-5 text-success">
+                            {formatCurrency(calculateTotal(contoEconomico?.entrate))}
+                          </td>
+                        </tr>
+                        <tr className="table-danger">
+                          <td className="fw-bold fs-5">TOTALE USCITE</td>
+                          <td className="text-end fw-bold fs-5 text-danger">
+                            {formatCurrency(calculateTotal(contoEconomico?.uscite))}
+                          </td>
+                        </tr>
+                        <tr className={`table-${
+                          (calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)) >= 0 
+                            ? 'success' 
+                            : 'danger'
+                        }`}>
+                          <td className="fw-bold fs-4">SALDO (Entrate - Uscite)</td>
+                          <td className={`text-end fw-bold fs-4 ${
+                            (calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)) >= 0 
+                              ? 'text-success' 
+                              : 'text-danger'
+                          }`}>
+                            {formatCurrency(
+                              calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)
+                            )}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
 
-              {/* Sezione Firma */}
-              <div className="border-top pt-4">
-                <h4 className="h6 h-md-5 mb-3 text-primary">
+              {/* SEZIONE FIRMA */}
+              <div className="mt-5">
+                <h4 className="border-bottom pb-2 mb-4 text-primary">
                   <i className="bi bi-pen me-2"></i>
-                  Firma e Dichiarazioni
+                  FIRMA
                 </h4>
                 
-                <div className="row">
-                  <div className="col-12 col-md-6 mb-3">
-                    <div className="card">
-                      <div className="card-body">
-                        <h6 className="card-title">Luogo e Data</h6>
-                        <p className="mb-0">
-                          {firma?.luogo || '_________________'}, {formatDate(firma?.data) || '_______________'}
+                <div className="card">
+                  <div className="card-body">
+                    {/* Luogo e Data */}
+                    <div className="row mb-5">
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold fs-5">Luogo:</label>
+                        <p className="border-bottom pb-2 fs-5" style={{ minHeight: '40px' }}>
+                          {firma?.luogo || '_'.repeat(30)}
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold fs-5">Data:</label>
+                        <p className="border-bottom pb-2 fs-5" style={{ minHeight: '40px' }}>
+                          {formatDate(firma?.data) || '_'.repeat(20)}
                         </p>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="col-12 col-md-6 mb-3">
-                    <div className="card">
-                      <div className="card-body">
-                        <h6 className="card-title">Stato Rendiconto</h6>
-                        <span className={`badge fs-6 ${
-                          rendiconto.stato === 'bozza' ? 'bg-warning text-dark' :
-                          rendiconto.stato === 'completato' ? 'bg-success' :
-                          rendiconto.stato === 'inviato' ? 'bg-info' : 'bg-secondary'
-                        }`}>
-                          {rendiconto.stato.charAt(0).toUpperCase() + rendiconto.stato.slice(1)}
-                        </span>
+
+                    {/* Note aggiuntive */}
+                    {firma?.noteAggiuntive && (
+                      <div className="mb-5">
+                        <label className="form-label fw-bold fs-5">Note aggiuntive:</label>
+                        <div className="border rounded p-3 bg-light" style={{ minHeight: '100px' }}>
+                          <div style={{ whiteSpace: 'pre-wrap' }}>
+                            {firma.noteAggiuntive}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Firma */}
+                    <div className="text-end mt-5">
+                      <label className="form-label fw-bold fs-5">Firma dell'Amministratore:</label>
+                      <div className="border-bottom pb-3 mb-3" style={{ minHeight: '100px' }}>
+                        {/* Placeholder per firma - in futuro qui ci sarà l'immagine della firma */}
+                        <div className="text-center text-muted fst-italic pt-4">
+                          {firma?.firmaAmministratore ? 'Firma confermata' : 'Firma non presente'}
+                        </div>
+                      </div>
+                      <div className="fs-5 fw-bold">
+                        {user?.nome} {user?.cognome}
                       </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Firma digitale */}
-                {user?.firmaDigitale && (
-                  <div className="text-center mt-4">
-                    <div className="card">
-                      <div className="card-body">
-                        <h6 className="card-title">Firma Digitale</h6>
-                        <img 
-                          src={user.firmaDigitale} 
-                          alt="Firma digitale" 
-                          className="img-fluid"
-                          style={{ 
-                            maxHeight: '100px', 
-                            maxWidth: '300px',
-                            backgroundColor: 'white',
-                            padding: '10px',
-                            border: '1px solid #ddd',
-                            borderRadius: '5px'
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Note aggiuntive */}
-                {firma?.note && (
-                  <div className="mt-4">
-                    <div className="card">
-                      <div className="card-body">
-                        <h6 className="card-title">Note Aggiuntive</h6>
-                        <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
-                          {firma.note}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
+
+              {/* FOOTER CON INFO STATO */}
+              <div className="border-top pt-4 mt-5">
+                <div className="row align-items-center">
+                  <div className="col">
+                    <small className="text-muted">
+                      <i className="bi bi-info-circle me-1"></i>
+                      Documento creato il {formatDate(rendiconto.createdAt)} - 
+                      Ultima modifica: {formatDate(rendiconto.updatedAt)}
+                    </small>
+                  </div>
+                  <div className="col-auto">
+                    <span className={`badge fs-6 ${
+                      rendiconto.stato === 'completato' ? 'bg-success' :
+                      rendiconto.stato === 'inviato' ? 'bg-primary' :
+                      'bg-warning text-dark'
+                    }`}>
+                      <i className={`bi ${
+                        rendiconto.stato === 'completato' ? 'bi-check-circle' :
+                        rendiconto.stato === 'inviato' ? 'bi-send' :
+                        'bi-pencil'
+                      } me-1`}></i>
+                      {rendiconto.stato.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
+
         </div>
       </div>
     </div>
