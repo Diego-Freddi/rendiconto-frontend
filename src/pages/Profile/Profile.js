@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import FirmaManager from '../../components/Firma/FirmaManager';
 
 const Profile = () => {
   const { user, updateProfileCompleto, loading } = useAuth();
@@ -367,6 +368,9 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Componente Firma */}
+              <FirmaManager />
 
               <div className="card mt-3">
                 <div className="card-header">

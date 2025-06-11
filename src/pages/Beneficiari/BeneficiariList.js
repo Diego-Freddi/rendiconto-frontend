@@ -116,27 +116,37 @@ const BeneficiariList = () => {
   };
 
   return (
-    <div className="container-fluid">
-      <div className="row">
+    <div>
+      {/* Header */}
+      <div className="row mb-4">
         <div className="col-12">
-          {/* Header */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="mb-0">
-              <i className="bi bi-people me-2"></i>
-              Gestione Beneficiari
-            </h2>
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+            <div>
+              <h2 className="mb-1">
+                <i className="bi bi-people me-2"></i>
+                Gestione Beneficiari
+              </h2>
+              <p className="text-muted mb-0">
+                Gestisci i beneficiari dei tuoi rendiconti
+              </p>
+            </div>
             <Link to="/beneficiari/nuovo" className="btn btn-primary">
               <i className="bi bi-plus-lg me-2"></i>
-              Nuovo Beneficiario
+              <span className="d-none d-sm-inline">Nuovo Beneficiario</span>
+              <span className="d-sm-none">Nuovo</span>
             </Link>
           </div>
+        </div>
+      </div>
 
-          {/* Filtri e Ricerca */}
-          <div className="card mb-4">
+      {/* Filtri e Ricerca */}
+      <div className="row mb-4">
+        <div className="col-12">
+          <div className="card">
             <div className="card-body">
               <form onSubmit={handleSearch}>
                 <div className="row g-3">
-                  <div className="col-md-6">
+                  <div className="col-12 col-md-6">
                     <label htmlFor="search" className="form-label">Ricerca</label>
                     <input
                       type="text"
@@ -148,7 +158,7 @@ const BeneficiariList = () => {
                     />
                   </div>
                   
-                  <div className="col-md-3">
+                  <div className="col-6 col-md-3">
                     <label htmlFor="attivi" className="form-label">Stato</label>
                     <select
                       className="form-select"
@@ -162,139 +172,113 @@ const BeneficiariList = () => {
                     </select>
                   </div>
 
-                  <div className="col-md-3 d-flex align-items-end gap-2">
-                    <button type="submit" className="btn btn-outline-primary">
+                  <div className="col-6 col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" className="btn btn-outline-primary flex-fill">
                       <i className="bi bi-search me-2"></i>
-                      Cerca
+                      <span className="d-none d-sm-inline">Cerca</span>
                     </button>
                     <button 
                       type="button" 
-                      className="btn btn-outline-secondary"
+                      className="btn btn-outline-secondary flex-fill"
                       onClick={handleResetFilters}
                     >
                       <i className="bi bi-arrow-clockwise me-2"></i>
-                      Reset
+                      <span className="d-none d-sm-inline">Reset</span>
                     </button>
                   </div>
                 </div>
               </form>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Lista Beneficiari */}
+      {/* Lista Beneficiari */}
+      <div className="row">
+        <div className="col-12">
           <div className="card">
-            <div className="card-header">
+            <div className="card-header d-flex justify-content-between align-items-center">
               <h5 className="card-title mb-0">
                 <i className="bi bi-list me-2"></i>
                 Lista Beneficiari
-                {pagination.totalItems > 0 && (
+                {pagination?.totalItems > 0 && (
                   <span className="badge bg-primary ms-2">{pagination.totalItems}</span>
                 )}
               </h5>
+              {loading && (
+                <div className="spinner-border spinner-border-sm text-primary" role="status">
+                  <span className="visually-hidden">Caricamento...</span>
+                </div>
+              )}
             </div>
-            <div className="card-body">
-              {loading ? (
-                <div className="text-center py-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Caricamento...</span>
-                  </div>
-                  <p className="mt-2 text-muted">Caricamento beneficiari...</p>
-                </div>
-              ) : beneficiari.length === 0 ? (
-                <div className="text-center py-5">
-                  <i className="bi bi-people display-1 text-muted"></i>
-                  <h4 className="mt-3 text-muted">Nessun beneficiario trovato</h4>
-                  <p className="text-muted">
-                    {filters.search || filters.attivi !== 'tutti' 
-                      ? 'Prova a modificare i filtri di ricerca'
-                      : 'Inizia aggiungendo il tuo primo beneficiario'
-                    }
-                  </p>
-                  {!filters.search && filters.attivi === 'tutti' && (
-                    <Link to="/beneficiari/nuovo" className="btn btn-primary">
-                      <i className="bi bi-plus-lg me-2"></i>
-                      Aggiungi Beneficiario
-                    </Link>
-                  )}
-                </div>
-              ) : (
-                <>
-                  {/* Tabella Beneficiari */}
+            
+            {beneficiari.length > 0 ? (
+              <>
+                {/* Vista Desktop - Tabella */}
+                <div className="d-none d-lg-block">
                   <div className="table-responsive">
-                    <table className="table table-hover">
+                    <table className="table table-hover mb-0">
                       <thead className="table-light">
                         <tr>
-                          <th>Nome Completo</th>
-                          <th>Codice Fiscale</th>
-                          <th>Età</th>
-                          <th>Luogo Nascita</th>
-                          <th>Stato</th>
-                          <th>Rendiconti</th>
-                          <th>Azioni</th>
+                          <th className="border-0">Nome Completo</th>
+                          <th className="border-0">Codice Fiscale</th>
+                          <th className="border-0">Età</th>
+                          <th className="border-0">Città</th>
+                          <th className="border-0">Stato</th>
+                          <th className="border-0">Rendiconti</th>
+                          <th className="border-0 text-center">Azioni</th>
                         </tr>
                       </thead>
                       <tbody>
                         {beneficiari.map((beneficiario) => (
                           <tr key={beneficiario._id}>
-                            <td>
-                              <div className="d-flex align-items-center">
-                                <div className="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
-                                  {beneficiario.nome.charAt(0)}{beneficiario.cognome.charAt(0)}
-                                </div>
-                                <div>
-                                  <div className="fw-medium">
-                                    {beneficiario.nome} {beneficiario.cognome}
-                                  </div>
-                                  {beneficiario.note && (
-                                    <small className="text-muted">
-                                      <i className="bi bi-sticky me-1"></i>
-                                      {beneficiario.note.substring(0, 50)}
-                                      {beneficiario.note.length > 50 ? '...' : ''}
-                                    </small>
-                                  )}
-                                </div>
+                            <td className="align-middle">
+                              <div>
+                                <strong>{beneficiario.nomeCompleto}</strong>
+                                <br />
+                                <small className="text-muted">
+                                  {new Date(beneficiario.dataNascita).toLocaleDateString('it-IT')}
+                                </small>
                               </div>
                             </td>
-                            <td>
-                              <code className="text-dark">{beneficiario.codiceFiscale}</code>
+                            <td className="align-middle">
+                              <code>{beneficiario.codiceFiscale}</code>
                             </td>
-                            <td>
+                            <td className="align-middle">
                               {calcolaEta(beneficiario.dataNascita)} anni
                             </td>
-                            <td>{beneficiario.luogoNascita || 'N/A'}</td>
-                            <td>
-                              <span className={`badge ${beneficiario.isActive ? 'bg-success' : 'bg-danger'}`}>
+                            <td className="align-middle">
+                              {beneficiario.citta || 'N/A'}
+                            </td>
+                            <td className="align-middle">
+                              <span className={`badge ${beneficiario.isActive ? 'bg-success' : 'bg-secondary'}`}>
                                 {beneficiario.isActive ? 'Attivo' : 'Inattivo'}
                               </span>
                             </td>
-                            <td>
-                              <Link 
-                                to="/rendiconti"
-                                className="btn btn-sm btn-outline-info"
-                              >
-                                <i className="bi bi-file-earmark-text me-1"></i>
-                                Visualizza
-                              </Link>
+                            <td className="align-middle">
+                              <span className="badge bg-info">
+                                {beneficiario.numeroRendiconti || 0}
+                              </span>
                             </td>
-                            <td>
-                              <div className="btn-group" role="group">
+                            <td className="align-middle text-center">
+                              <div className="btn-group btn-group-sm">
                                 <Link
                                   to={`/beneficiari/${beneficiario._id}`}
-                                  className="btn btn-sm btn-outline-primary"
-                                  title="Visualizza dettagli"
+                                  className="btn btn-outline-primary"
+                                  title="Visualizza"
                                 >
                                   <i className="bi bi-eye"></i>
                                 </Link>
                                 <Link
                                   to={`/beneficiari/${beneficiario._id}/modifica`}
-                                  className="btn btn-sm btn-outline-warning"
+                                  className="btn btn-outline-secondary"
                                   title="Modifica"
                                 >
                                   <i className="bi bi-pencil"></i>
                                 </Link>
                                 {!beneficiario.isActive ? (
                                   <button
-                                    className="btn btn-sm btn-outline-success"
+                                    className="btn btn-outline-success"
                                     onClick={() => handleAttiva(beneficiario._id)}
                                     title="Riattiva"
                                   >
@@ -302,11 +286,11 @@ const BeneficiariList = () => {
                                   </button>
                                 ) : (
                                   <button
-                                    className="btn btn-sm btn-outline-danger"
+                                    className="btn btn-outline-danger"
                                     onClick={() => handleDeleteClick(beneficiario)}
-                                    title="Elimina"
+                                    title="Disattiva"
                                   >
-                                    <i className="bi bi-trash"></i>
+                                    <i className="bi bi-x-circle"></i>
                                   </button>
                                 )}
                               </div>
@@ -316,67 +300,166 @@ const BeneficiariList = () => {
                       </tbody>
                     </table>
                   </div>
+                </div>
 
-                  {/* Paginazione */}
-                  {pagination.totalPages > 1 && (
-                    <nav aria-label="Paginazione beneficiari" className="mt-4">
-                      <ul className="pagination justify-content-center">
-                        <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
-                          <button
-                            className="page-link"
-                            onClick={() => handlePageChange(pagination.currentPage - 1)}
-                            disabled={pagination.currentPage === 1}
+                {/* Vista Mobile - Cards */}
+                <div className="d-lg-none">
+                  <div className="list-group list-group-flush">
+                    {beneficiari.map((beneficiario) => (
+                      <div key={beneficiario._id} className="list-group-item">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <div className="flex-grow-1">
+                            <h6 className="mb-1">{beneficiario.nomeCompleto}</h6>
+                            <div className="d-flex flex-wrap gap-2 mb-2">
+                              <span className={`badge ${beneficiario.isActive ? 'bg-success' : 'bg-secondary'}`}>
+                                {beneficiario.isActive ? 'Attivo' : 'Inattivo'}
+                              </span>
+                              <span className="badge bg-info">
+                                {beneficiario.numeroRendiconti || 0} rendiconti
+                              </span>
+                            </div>
+                            <div className="row text-sm">
+                              <div className="col-12 mb-1">
+                                <small className="text-muted d-block">Codice Fiscale</small>
+                                <code className="small">{beneficiario.codiceFiscale}</code>
+                              </div>
+                              <div className="col-6">
+                                <small className="text-muted d-block">Età</small>
+                                <span>{calcolaEta(beneficiario.dataNascita)} anni</span>
+                              </div>
+                              <div className="col-6">
+                                <small className="text-muted d-block">Città</small>
+                                <span>{beneficiario.citta || 'N/A'}</span>
+                              </div>
+                            </div>
+                            <small className="text-muted">
+                              Nato il {new Date(beneficiario.dataNascita).toLocaleDateString('it-IT')}
+                            </small>
+                          </div>
+                        </div>
+                        <div className="d-flex gap-2">
+                          <Link
+                            to={`/beneficiari/${beneficiario._id}`}
+                            className="btn btn-outline-primary btn-sm flex-fill"
                           >
-                            <i className="bi bi-chevron-left"></i>
-                          </button>
-                        </li>
-                        
-                        {[...Array(pagination.totalPages)].map((_, index) => {
-                          const pageNumber = index + 1;
-                          return (
-                            <li
-                              key={pageNumber}
-                              className={`page-item ${pagination.currentPage === pageNumber ? 'active' : ''}`}
+                            <i className="bi bi-eye me-1"></i>
+                            Visualizza
+                          </Link>
+                          <Link
+                            to={`/beneficiari/${beneficiario._id}/modifica`}
+                            className="btn btn-outline-secondary btn-sm flex-fill"
+                          >
+                            <i className="bi bi-pencil me-1"></i>
+                            Modifica
+                          </Link>
+                          {!beneficiario.isActive ? (
+                            <button
+                              className="btn btn-outline-success btn-sm"
+                              onClick={() => handleAttiva(beneficiario._id)}
+                              title="Riattiva"
                             >
-                              <button
-                                className="page-link"
-                                onClick={() => handlePageChange(pageNumber)}
-                              >
-                                {pageNumber}
-                              </button>
-                            </li>
-                          );
-                        })}
-                        
-                        <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
-                          <button
-                            className="page-link"
-                            onClick={() => handlePageChange(pagination.currentPage + 1)}
-                            disabled={pagination.currentPage === pagination.totalPages}
-                          >
-                            <i className="bi bi-chevron-right"></i>
-                          </button>
-                        </li>
-                      </ul>
-                    </nav>
-                  )}
-                </>
-              )}
-            </div>
+                              <i className="bi bi-check-circle"></i>
+                            </button>
+                          ) : (
+                            <button
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={() => handleDeleteClick(beneficiario)}
+                              title="Disattiva"
+                            >
+                              <i className="bi bi-x-circle"></i>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Paginazione */}
+                {pagination && pagination.totalPages > 1 && (
+                  <div className="card-footer">
+                    <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+                      <small className="text-muted">
+                        Mostrando {((pagination.currentPage - 1) * pagination.limit) + 1} - {Math.min(pagination.currentPage * pagination.limit, pagination.totalItems)} di {pagination.totalItems} risultati
+                      </small>
+                      <nav>
+                        <ul className="pagination pagination-sm mb-0">
+                          <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => handlePageChange(pagination.currentPage - 1)}
+                              disabled={pagination.currentPage === 1}
+                            >
+                              <i className="bi bi-chevron-left"></i>
+                            </button>
+                          </li>
+                          
+                          {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                            let pageNum;
+                            if (pagination.totalPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (pagination.currentPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                              pageNum = pagination.totalPages - 4 + i;
+                            } else {
+                              pageNum = pagination.currentPage - 2 + i;
+                            }
+                            
+                            return (
+                              <li key={pageNum} className={`page-item ${pagination.currentPage === pageNum ? 'active' : ''}`}>
+                                <button
+                                  className="page-link"
+                                  onClick={() => handlePageChange(pageNum)}
+                                >
+                                  {pageNum}
+                                </button>
+                              </li>
+                            );
+                          })}
+                          
+                          <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => handlePageChange(pagination.currentPage + 1)}
+                              disabled={pagination.currentPage === pagination.totalPages}
+                            >
+                              <i className="bi bi-chevron-right"></i>
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="card-body text-center py-5">
+                <i className="bi bi-people text-muted" style={{ fontSize: '3rem' }}></i>
+                <h5 className="mt-3 text-muted">Nessun beneficiario trovato</h5>
+                <p className="text-muted">
+                  {filters.search || filters.attivi !== 'tutti'
+                    ? 'Prova a modificare i filtri di ricerca'
+                    : 'Inizia aggiungendo il tuo primo beneficiario'
+                  }
+                </p>
+                <Link to="/beneficiari/nuovo" className="btn btn-primary">
+                  <i className="bi bi-plus-lg me-2"></i>
+                  Aggiungi Beneficiario
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Modal Conferma Eliminazione */}
+      {/* Modal di conferma eliminazione */}
       {showDeleteModal && (
         <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">
-                  <i className="bi bi-exclamation-triangle text-warning me-2"></i>
-                  Conferma Eliminazione
-                </h5>
+                <h5 className="modal-title">Conferma Disattivazione</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -385,16 +468,13 @@ const BeneficiariList = () => {
               </div>
               <div className="modal-body">
                 <p>
-                  Sei sicuro di voler eliminare il beneficiario{' '}
-                  <strong>
-                    {beneficiarioToDelete?.nome} {beneficiarioToDelete?.cognome}
-                  </strong>?
+                  Sei sicuro di voler disattivare il beneficiario{' '}
+                  <strong>{beneficiarioToDelete?.nomeCompleto}</strong>?
                 </p>
-                <div className="alert alert-warning">
-                  <i className="bi bi-info-circle me-2"></i>
-                  <strong>Attenzione:</strong> Se il beneficiario ha rendiconti associati,
-                  verrà disattivato invece di essere eliminato definitivamente.
-                </div>
+                <p className="text-muted small">
+                  Il beneficiario verrà disattivato ma i suoi dati rimarranno nel sistema.
+                  Potrai riattivarlo in qualsiasi momento.
+                </p>
               </div>
               <div className="modal-footer">
                 <button
@@ -409,8 +489,7 @@ const BeneficiariList = () => {
                   className="btn btn-danger"
                   onClick={handleDeleteConfirm}
                 >
-                  <i className="bi bi-trash me-2"></i>
-                  Elimina
+                  Disattiva
                 </button>
               </div>
             </div>

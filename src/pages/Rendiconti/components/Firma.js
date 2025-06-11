@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import FirmaApplicator from '../../../components/Firma/FirmaApplicator';
 
 const Firma = () => {
   const { 
@@ -174,6 +175,24 @@ const Firma = () => {
             <div className="form-text">
               Spazio per eventuali chiarimenti o informazioni aggiuntive che si ritengono utili.
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Firma Digitale */}
+      <div className="col-12 mb-4">
+        <div className="card">
+          <div className="card-header">
+            <h6 className="mb-0">
+              <i className="bi bi-pen me-2"></i>
+              Firma Digitale
+            </h6>
+          </div>
+          <div className="card-body">
+            <FirmaApplicator
+              currentFirma={watch('firma.firmaDigitale')}
+              onFirmaApplied={(firmaData) => setValue('firma.firmaDigitale', firmaData)}
+            />
           </div>
         </div>
       </div>

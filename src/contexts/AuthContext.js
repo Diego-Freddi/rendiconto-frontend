@@ -17,6 +17,14 @@ axios.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Debug solo per le richieste firma
+    if (config.url?.includes('firma')) {
+      console.log('Axios request config:', {
+        url: config.url,
+        method: config.method,
+        headers: config.headers
+      });
+    }
     return config;
   },
   (error) => {
@@ -26,9 +34,30 @@ axios.interceptors.request.use(
 
 // Interceptor per gestire errori di autenticazione
 axios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Debug solo per le richieste firma
+    if (response.config.url?.includes('firma')) {
+      console.log('Axios response:', {
+        url: response.config.url,
+        status: response.status,
+        data: response.data
+      });
+    }
+    return response;
+  },
   (error) => {
-    if (error.response?.status === 401) {
+    // Debug sempre per gli errori
+    console.error('Axios error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    
+    // Solo reindirizza se siamo già autenticati e riceviamo 401
+    // Evita loop se siamo già nella pagina di login
+    if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {
+      console.log('Token scaduto, reindirizzamento al login...');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -64,11 +93,16 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
         } catch (error) {
           console.error('Token non valido:', error);
+          // Pulisci tutto e non reindirizzare qui (lascia che sia l'interceptor)
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           setUser(null);
           setIsAuthenticated(false);
         }
+      } else {
+        // Nessun token salvato
+        setUser(null);
+        setIsAuthenticated(false);
       }
       setLoading(false);
     };
@@ -192,6 +226,82 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Upload firma Base64
+  const uploadFirma = async (file, password) => {
+    try {
+      setLoading(true);
+      
+      // Converti file in Base64
+      const firmaBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      
+      const response = await axios.post('/auth/upload-firma', {
+        firmaBase64,
+        password
+      });
+      
+      if (response.data.success) {
+        // Aggiorna i dati utente con la nuova firma
+        const updatedUser = { ...user, firmaImmagine: response.data.firmaUrl };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        
+        toast.success('Firma caricata con successo!');
+        return { success: true, firmaUrl: response.data.firmaUrl };
+      }
+      
+    } catch (error) {
+      const message = error.response?.data?.message || 'Errore durante il caricamento della firma';
+      toast.error(message);
+      return { success: false, error: message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Elimina firma
+  const deleteFirma = async (password) => {
+    try {
+      setLoading(true);
+      
+      const response = await axios.delete('/auth/delete-firma', {
+        data: { password }
+      });
+      
+      if (response.data.success) {
+        // Aggiorna i dati utente rimuovendo la firma
+        const updatedUser = { ...user, firmaImmagine: null };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        
+        toast.success('Firma eliminata con successo!');
+        return { success: true };
+      }
+      
+    } catch (error) {
+      const message = error.response?.data?.message || 'Errore durante l\'eliminazione della firma';
+      toast.error(message);
+      return { success: false, error: message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verifica password
+  const verifyPassword = async (password) => {
+    try {
+      const response = await axios.post('/auth/verify-password', { password });
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Errore durante la verifica della password';
+      return { success: false, valid: false, error: message };
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -200,7 +310,10 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
-    updateProfileCompleto
+    updateProfileCompleto,
+    uploadFirma,
+    deleteFirma,
+    verifyPassword
   };
 
   return (

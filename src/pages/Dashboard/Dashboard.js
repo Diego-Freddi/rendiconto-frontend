@@ -44,74 +44,79 @@ const Dashboard = () => {
   return (
     <div>
       {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-1">
-            {getGreeting()}, {user?.nome}!
-          </h1>
-          <p className="text-muted mb-0">
-            Ecco un riepilogo dei tuoi rendiconti
-          </p>
+      <div className="row mb-4">
+        <div className="col-12">
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+            <div>
+              <h1 className="h3 mb-1">
+                {getGreeting()}, {user?.nome}!
+              </h1>
+              <p className="text-muted mb-0">
+                Ecco un riepilogo dei tuoi rendiconti
+              </p>
+            </div>
+            <Link to="/rendiconti/nuovo" className="btn btn-primary">
+              <i className="bi bi-plus-circle me-2"></i>
+              <span className="d-none d-sm-inline">Nuovo Rendiconto</span>
+              <span className="d-sm-none">Nuovo</span>
+            </Link>
+          </div>
         </div>
-        <Link to="/rendiconti/nuovo" className="btn btn-primary">
-          <i className="bi bi-plus-circle me-2"></i>
-          Nuovo Rendiconto
-        </Link>
       </div>
 
       {/* Statistiche */}
       <div className="row mb-4">
-        <div className="col-md-3 mb-3">
-          <div className="card bg-primary text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h4 className="mb-0">{stats.totaleRendiconti}</h4>
-                  <p className="mb-0">Totale Rendiconti</p>
+        <div className="col-6 col-lg-3 mb-3">
+          <div className="card bg-primary text-white h-100">
+            <div className="card-body d-flex flex-column justify-content-between">
+              <div className="d-flex justify-content-between align-items-start">
+                <div className="flex-grow-1">
+                  <h4 className="mb-1 fs-3 fs-md-2">{stats.totaleRendiconti}</h4>
+                  <p className="mb-0 small">Totale Rendiconti</p>
                 </div>
-                <i className="bi bi-file-earmark-text" style={{ fontSize: '2rem' }}></i>
+                <i className="bi bi-file-earmark-text fs-2 opacity-75"></i>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="col-md-3 mb-3">
-          <div className="card bg-warning text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h4 className="mb-0">{stats.bozze}</h4>
-                  <p className="mb-0">Bozze</p>
+        <div className="col-6 col-lg-3 mb-3">
+          <div className="card bg-warning text-white h-100">
+            <div className="card-body d-flex flex-column justify-content-between">
+              <div className="d-flex justify-content-between align-items-start">
+                <div className="flex-grow-1">
+                  <h4 className="mb-1 fs-3 fs-md-2">{stats.bozze}</h4>
+                  <p className="mb-0 small">Bozze</p>
                 </div>
-                <i className="bi bi-pencil-square" style={{ fontSize: '2rem' }}></i>
+                <i className="bi bi-pencil-square fs-2 opacity-75"></i>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="col-md-3 mb-3">
-          <div className="card bg-success text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h4 className="mb-0">{stats.completati}</h4>
-                  <p className="mb-0">Completati</p>
+        <div className="col-6 col-lg-3 mb-3">
+          <div className="card bg-success text-white h-100">
+            <div className="card-body d-flex flex-column justify-content-between">
+              <div className="d-flex justify-content-between align-items-start">
+                <div className="flex-grow-1">
+                  <h4 className="mb-1 fs-3 fs-md-2">{stats.completati}</h4>
+                  <p className="mb-0 small">Completati</p>
                 </div>
-                <i className="bi bi-check-circle" style={{ fontSize: '2rem' }}></i>
+                <i className="bi bi-check-circle fs-2 opacity-75"></i>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="col-md-3 mb-3">
-          <div className="card bg-info text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h4 className="mb-0">{stats.inviati}</h4>
-                  <p className="mb-0">Inviati</p>
+        <div className="col-6 col-lg-3 mb-3">
+          <div className="card bg-info text-white h-100">
+            <div className="card-body d-flex flex-column justify-content-between">
+              <div className="d-flex justify-content-between align-items-start">
+                <div className="flex-grow-1">
+                  <h4 className="mb-1 fs-3 fs-md-2">{stats.inviati}</h4>
+                  <p className="mb-0 small">Inviati</p>
                 </div>
-                <i className="bi bi-send" style={{ fontSize: '2rem' }}></i>
+                <i className="bi bi-send fs-2 opacity-75"></i>
               </div>
             </div>
           </div>
@@ -122,13 +127,14 @@ const Dashboard = () => {
       <div className="row">
         <div className="col-12">
           <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center">
+            <div className="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
               <h5 className="mb-0">Rendiconti Recenti</h5>
               <Link to="/rendiconti" className="btn btn-outline-primary btn-sm">
-                Vedi tutti
+                <span className="d-none d-sm-inline">Vedi tutti</span>
+                <span className="d-sm-none">Tutti</span>
               </Link>
             </div>
-            <div className="card-body">
+            <div className="card-body p-0">
               {loading ? (
                 <div className="text-center py-4">
                   <div className="spinner-border text-primary" role="status">
@@ -137,36 +143,50 @@ const Dashboard = () => {
                 </div>
               ) : recentRendiconti.length > 0 ? (
                 <div className="table-responsive">
-                  <table className="table table-hover">
-                    <thead>
+                  <table className="table table-hover mb-0">
+                    <thead className="table-light">
                       <tr>
-                        <th>Beneficiario</th>
-                        <th>Anno</th>
-                        <th>Stato</th>
-                        <th>Ultima modifica</th>
-                        <th>Azioni</th>
+                        <th className="border-0">Beneficiario</th>
+                        <th className="border-0 d-none d-md-table-cell">Anno</th>
+                        <th className="border-0">Stato</th>
+                        <th className="border-0 d-none d-lg-table-cell">Ultima modifica</th>
+                        <th className="border-0 text-center">Azioni</th>
                       </tr>
                     </thead>
                     <tbody>
                       {recentRendiconti.map((rendiconto) => (
                         <tr key={rendiconto._id}>
-                          <td>
-                            <strong>{rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}</strong>
+                          <td className="align-middle">
+                            <div>
+                              <strong className="d-block">
+                                {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}
+                              </strong>
+                              <small className="text-muted d-md-none">
+                                Anno {rendiconto.datiGenerali?.anno}
+                              </small>
+                            </div>
                           </td>
-                          <td>{rendiconto.datiGenerali?.anno}</td>
-                          <td>
+                          <td className="align-middle d-none d-md-table-cell">
+                            {rendiconto.datiGenerali?.anno}
+                          </td>
+                          <td className="align-middle">
                             <span className={`badge ${
-                              rendiconto.stato === 'bozza' ? 'bg-warning' :
+                              rendiconto.stato === 'bozza' ? 'bg-warning text-dark' :
                               rendiconto.stato === 'completato' ? 'bg-success' :
                               rendiconto.stato === 'inviato' ? 'bg-info' : 'bg-secondary'
                             }`}>
                               {rendiconto.stato.charAt(0).toUpperCase() + rendiconto.stato.slice(1)}
                             </span>
+                            <div className="d-lg-none">
+                              <small className="text-muted">
+                                {new Date(rendiconto.updatedAt).toLocaleDateString('it-IT')}
+                              </small>
+                            </div>
                           </td>
-                          <td>
+                          <td className="align-middle d-none d-lg-table-cell">
                             {new Date(rendiconto.updatedAt).toLocaleDateString('it-IT')}
                           </td>
-                          <td>
+                          <td className="align-middle text-center">
                             <div className="btn-group btn-group-sm">
                               <Link
                                 to={`/rendiconti/${rendiconto._id}`}
@@ -192,7 +212,7 @@ const Dashboard = () => {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-4">
+                <div className="text-center py-5">
                   <i className="bi bi-file-earmark-text text-muted" style={{ fontSize: '3rem' }}></i>
                   <h5 className="mt-3 text-muted">Nessun rendiconto trovato</h5>
                   <p className="text-muted">Inizia creando il tuo primo rendiconto</p>

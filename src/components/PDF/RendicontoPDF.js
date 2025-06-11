@@ -5,7 +5,8 @@ import {
   Text,
   View,
   StyleSheet,
-  Font
+  Font,
+  Image
 } from '@react-pdf/renderer';
 import { raggruppaPerCategoriaPDF } from '../../utils/categoriaUtils';
 
@@ -303,6 +304,30 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#6c757d',
     marginTop: 5,
+  },
+  digitalSignatureContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+    padding: 10,
+    border: '1 solid #dee2e6',
+    borderRadius: 4,
+    backgroundColor: '#ffffff',
+  },
+  digitalSignature: {
+    maxHeight: 60,
+    maxWidth: 200,
+    objectFit: 'contain',
+    alignSelf: 'center',
+    marginBottom: 5,
+  },
+  digitalSignatureInfo: {
+    alignItems: 'center',
+  },
+  digitalSignatureText: {
+    fontSize: 8,
+    color: '#28a745',
+    textAlign: 'center',
+    marginBottom: 2,
   },
   
   // BADGE E ELEMENTI DECORATIVI
@@ -811,7 +836,20 @@ const RendicontoPDF = ({ rendiconto, amministratore }) => {
           {/* Firma */}
           <View>
             <Text style={styles.textBold}>Firma dell'Amministratore di Sostegno:</Text>
-            <View style={styles.signatureBox}></View>
+            
+            {firma?.firmaDigitale?.immagine ? (
+              // Firma digitale presente
+              <View style={styles.digitalSignatureContainer}>
+                <Image
+                  src={firma.firmaDigitale.immagine}
+                  style={styles.digitalSignature}
+                />
+              </View>
+            ) : (
+              // Spazio per firma manuale
+              <View style={styles.signatureBox}></View>
+            )}
+            
             <Text style={styles.signatureName}>
               {amministratore?.nome} {amministratore?.cognome}
             </Text>
