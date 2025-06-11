@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const RendicontoPDF = ({ rendiconto }) => {
+const RendicontoPDF = ({ rendiconto, amministratore }) => {
   // Funzioni di utilità
   const formatCurrency = (amount) => {
     if (!amount && amount !== 0) return '€ 0,00';
@@ -372,7 +372,12 @@ const RendicontoPDF = ({ rendiconto }) => {
     return items.reduce((total, item) => total + (item.valore || item.importo || 0), 0);
   };
 
-  const { datiGenerali, condizioniPersonali, situazionePatrimoniale, contoEconomico, firma } = rendiconto;
+  const { datiGenerali, contoEconomico, firma } = rendiconto;
+  
+  // Dati dal beneficiario popolato
+  const beneficiario = rendiconto.beneficiarioId;
+  const condizioniPersonali = beneficiario?.condizioniPersonali;
+  const situazionePatrimoniale = beneficiario?.situazionePatrimoniale;
 
   // Raggruppa le voci per categoria per il PDF (senza descrizioni)
   const entrateRaggruppate = raggruppaPerCategoriaPDF(contoEconomico?.entrate || []);
@@ -401,7 +406,10 @@ const RendicontoPDF = ({ rendiconto }) => {
               Amministrazione di sostegno/tutela: R.G. n. {datiGenerali?.rg_numero || '1/2025'}
             </Text>
             <Text style={styles.period}>
-              Periodo: {datiGenerali?.mese || 'Maggio'} {datiGenerali?.anno || '2025'}
+              Periodo: {datiGenerali?.dataInizio && datiGenerali?.dataFine ? 
+                `${formatDate(datiGenerali.dataInizio)} - ${formatDate(datiGenerali.dataFine)}` : 
+                `Anno ${datiGenerali?.anno || '2025'}`
+              }
             </Text>
           </View>
         </View>
@@ -421,27 +429,27 @@ const RendicontoPDF = ({ rendiconto }) => {
                   <View style={styles.dataTable}>
                     <View style={styles.dataRow}>
                       <Text style={styles.dataLabel}>Nome:</Text>
-                      <Text style={styles.dataValue}>{datiGenerali?.beneficiario?.nome || 'Non specificato'}</Text>
+                      <Text style={styles.dataValue}>{beneficiario?.nome || 'Non specificato'}</Text>
                     </View>
                     <View style={styles.dataRow}>
                       <Text style={styles.dataLabel}>Cognome:</Text>
-                      <Text style={styles.dataValue}>{datiGenerali?.beneficiario?.cognome || 'Non specificato'}</Text>
+                      <Text style={styles.dataValue}>{beneficiario?.cognome || 'Non specificato'}</Text>
                     </View>
                     <View style={styles.dataRow}>
                       <Text style={styles.dataLabel}>Codice Fiscale:</Text>
-                      <Text style={styles.dataValue}>{datiGenerali?.beneficiario?.codiceFiscale || 'Non specificato'}</Text>
+                      <Text style={styles.dataValue}>{beneficiario?.codiceFiscale || 'Non specificato'}</Text>
                     </View>
                     <View style={styles.dataRow}>
                       <Text style={styles.dataLabel}>Data di Nascita:</Text>
-                      <Text style={styles.dataValue}>{formatDate(datiGenerali?.beneficiario?.dataNascita) || 'Non specificato'}</Text>
+                      <Text style={styles.dataValue}>{formatDate(beneficiario?.dataNascita) || 'Non specificato'}</Text>
                     </View>
                     <View style={styles.dataRow}>
                       <Text style={styles.dataLabel}>Luogo di Nascita:</Text>
-                      <Text style={styles.dataValue}>{datiGenerali?.beneficiario?.luogoNascita || 'Non specificato'}</Text>
+                      <Text style={styles.dataValue}>{beneficiario?.luogoNascita || 'Non specificato'}</Text>
                     </View>
                     <View style={styles.dataRow}>
                       <Text style={styles.dataLabel}>Indirizzo:</Text>
-                      <Text style={styles.dataValue}>{formatAddress(datiGenerali?.beneficiario?.indirizzo)}</Text>
+                      <Text style={styles.dataValue}>{formatAddress(beneficiario?.indirizzo)}</Text>
                     </View>
                   </View>
                 </View>
@@ -458,20 +466,26 @@ const RendicontoPDF = ({ rendiconto }) => {
                   <View style={styles.dataTable}>
                     <View style={styles.dataRow}>
                       <Text style={styles.dataLabel}>Nome:</Text>
-                      <Text style={styles.dataValue}>{datiGenerali?.amministratore?.nome || 'Non specificato'}</Text>
+                      <Text style={styles.dataValue}>{amministratore?.nome || 'Non specificato'}</Text>
                     </View>
                     <View style={styles.dataRow}>
                       <Text style={styles.dataLabel}>Cognome:</Text>
-                      <Text style={styles.dataValue}>{datiGenerali?.amministratore?.cognome || 'Non specificato'}</Text>
+                      <Text style={styles.dataValue}>{amministratore?.cognome || 'Non specificato'}</Text>
                     </View>
                     <View style={styles.dataRow}>
                       <Text style={styles.dataLabel}>Codice Fiscale:</Text>
-                      <Text style={styles.dataValue}>{datiGenerali?.amministratore?.codiceFiscale || 'Non specificato'}</Text>
+                      <Text style={styles.dataValue}>{amministratore?.codiceFiscale || 'Non specificato'}</Text>
                     </View>
                     <View style={styles.dataRow}>
-                      <Text style={styles.dataLabel}>Indirizzo:</Text>
-                      <Text style={styles.dataValue}>{formatAddress(datiGenerali?.amministratore?.indirizzo)}</Text>
+                      <Text style={styles.dataLabel}>Email:</Text>
+                      <Text style={styles.dataValue}>{amministratore?.email || 'Non specificato'}</Text>
                     </View>
+                    {amministratore?.professione && (
+                      <View style={styles.dataRow}>
+                        <Text style={styles.dataLabel}>Professione:</Text>
+                        <Text style={styles.dataValue}>{amministratore.professione}</Text>
+                      </View>
+                    )}
                   </View>
                 </View>
               </View>
@@ -799,7 +813,7 @@ const RendicontoPDF = ({ rendiconto }) => {
             <Text style={styles.textBold}>Firma dell'Amministratore di Sostegno:</Text>
             <View style={styles.signatureBox}></View>
             <Text style={styles.signatureName}>
-              {datiGenerali?.amministratore?.nome} {datiGenerali?.amministratore?.cognome}
+              {amministratore?.nome} {amministratore?.cognome}
             </Text>
           </View>
         </View>

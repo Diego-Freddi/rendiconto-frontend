@@ -1,66 +1,210 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useBeneficiario } from '../../../contexts/BeneficiarioContext';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const DatiGenerali = () => {
   const { 
     register, 
     formState: { errors }, 
-    watch 
+    watch,
+    setValue,
+    getValues
   } = useFormContext();
 
-  const mesi = [
-    'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
-  ];
+  const { user } = useAuth();
+  const { beneficiari, fetchBeneficiari, loading: loadingBeneficiari } = useBeneficiario();
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
 
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+  // Watch del beneficiario selezionato
+  const beneficiarioId = watch('beneficiarioId');
+
+  // Carica beneficiari se non già caricati
+  useEffect(() => {
+    if (!beneficiari || beneficiari.length === 0) {
+      fetchBeneficiari();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Aggiorna beneficiario selezionato quando cambia l'ID
+  useEffect(() => {
+    if (beneficiarioId && beneficiari && beneficiari.length > 0) {
+      const beneficiario = beneficiari.find(b => b._id === beneficiarioId);
+      setSelectedBeneficiario(beneficiario || null);
+    } else {
+      setSelectedBeneficiario(null);
+    }
+  }, [beneficiarioId, beneficiari]);
+
+  // Calcola età del beneficiario
+  const calcolaEta = (dataNascita) => {
+    if (!dataNascita) return '';
+    const oggi = new Date();
+    const nascita = new Date(dataNascita);
+    let eta = oggi.getFullYear() - nascita.getFullYear();
+    const mese = oggi.getMonth() - nascita.getMonth();
+    if (mese < 0 || (mese === 0 && oggi.getDate() < nascita.getDate())) {
+      eta--;
+    }
+    return eta;
+  };
+
+  // Formatta indirizzo completo
+  const formatIndirizzo = (indirizzo) => {
+    if (!indirizzo) return '';
+    const parti = [];
+    if (indirizzo.via) parti.push(indirizzo.via);
+    if (indirizzo.cap) parti.push(indirizzo.cap);
+    if (indirizzo.citta) parti.push(indirizzo.citta);
+    if (indirizzo.provincia) parti.push(`(${indirizzo.provincia})`);
+    return parti.join(', ');
+  };
 
   return (
     <div className="row">
-      {/* Sezione Periodo e R.G. */}
+      {/* Sezione Selezione Beneficiario */}
       <div className="col-12 mb-4">
         <h6 className="text-primary mb-3">
-          <i className="bi bi-calendar3 me-2"></i>
-          Periodo di Riferimento
+          <i className="bi bi-person-check me-2"></i>
+          Selezione Beneficiario
         </h6>
+        
         <div className="row">
-          <div className="col-md-4 mb-3">
-            <label htmlFor="anno" className="form-label">
-              Anno *
+          <div className="col-md-8 mb-3">
+            <label htmlFor="beneficiarioId" className="form-label">
+              Beneficiario/Interdetto *
             </label>
             <select
-              className={`form-select ${errors.datiGenerali?.anno ? 'is-invalid' : ''}`}
-              {...register('datiGenerali.anno')}
+              className={`form-select ${errors.beneficiarioId ? 'is-invalid' : ''}`}
+              {...register('beneficiarioId')}
+              disabled={loadingBeneficiari}
             >
-              <option value="">Seleziona anno</option>
-              {years.map(year => (
-                <option key={year} value={year}>{year}</option>
+              <option value="">
+                {loadingBeneficiari ? 'Caricamento...' : 'Seleziona beneficiario'}
+              </option>
+              {beneficiari && beneficiari.filter(b => b.isActive).map(beneficiario => (
+                <option key={beneficiario._id} value={beneficiario._id}>
+                  {beneficiario.nome} {beneficiario.cognome} - {beneficiario.codiceFiscale}
+                </option>
               ))}
             </select>
-            {errors.datiGenerali?.anno && (
+            {errors.beneficiarioId && (
               <div className="invalid-feedback">
-                {errors.datiGenerali.anno.message}
+                {errors.beneficiarioId.message}
+              </div>
+            )}
+            {!loadingBeneficiari && beneficiari && beneficiari.filter(b => b.isActive).length === 0 && (
+              <div className="form-text text-warning">
+                <i className="bi bi-exclamation-triangle me-1"></i>
+                Nessun beneficiario attivo trovato. 
+                <a href="/beneficiari/nuovo" className="ms-1">Crea nuovo beneficiario</a>
+              </div>
+            )}
+          </div>
+
+          <div className="col-md-4 mb-3 d-flex align-items-end">
+            <a 
+              href="/beneficiari/nuovo" 
+              className="btn btn-outline-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i className="bi bi-plus-circle me-2"></i>
+              Nuovo Beneficiario
+            </a>
+          </div>
+        </div>
+
+        {/* Dati Beneficiario Selezionato (Read-only) */}
+        {selectedBeneficiario && (
+          <div className="card bg-light mt-3">
+            <div className="card-body">
+              <h6 className="card-title text-secondary mb-3">
+                <i className="bi bi-info-circle me-2"></i>
+                Dati del Beneficiario Selezionato
+              </h6>
+              
+              <div className="row">
+                <div className="col-md-6">
+                  <p className="mb-2">
+                    <strong>Nome Completo:</strong> {selectedBeneficiario.nome} {selectedBeneficiario.cognome}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Codice Fiscale:</strong> {selectedBeneficiario.codiceFiscale}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Data di Nascita:</strong> {' '}
+                    {selectedBeneficiario.dataNascita ? 
+                      new Date(selectedBeneficiario.dataNascita).toLocaleDateString('it-IT') : 'Non specificata'
+                    }
+                    {selectedBeneficiario.dataNascita && (
+                      <span className="text-muted ms-2">
+                        (età: {calcolaEta(selectedBeneficiario.dataNascita)} anni)
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className="col-md-6">
+                  {selectedBeneficiario.luogoNascita && (
+                    <p className="mb-2">
+                      <strong>Luogo di Nascita:</strong> {selectedBeneficiario.luogoNascita}
+                    </p>
+                  )}
+                  {selectedBeneficiario.indirizzo && (
+                    <p className="mb-2">
+                      <strong>Indirizzo:</strong> {formatIndirizzo(selectedBeneficiario.indirizzo)}
+                    </p>
+                  )}
+                  <p className="mb-0">
+                    <strong>Patrimonio Totale:</strong> {' '}
+                    <span className="text-success fw-bold">
+                      €{selectedBeneficiario.totalePatrimonio?.toLocaleString('it-IT') || '0,00'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Sezione Periodo di Riferimento */}
+      <div className="col-12 mb-4">
+        <h6 className="text-primary mb-3">
+          <i className="bi bi-calendar-range me-2"></i>
+          Periodo di Riferimento
+        </h6>
+        
+        <div className="row">
+          <div className="col-md-4 mb-3">
+            <label htmlFor="dataInizio" className="form-label">
+              Data Inizio Periodo *
+            </label>
+            <input
+              type="date"
+              className={`form-control ${errors.datiGenerali?.dataInizio ? 'is-invalid' : ''}`}
+              {...register('datiGenerali.dataInizio')}
+            />
+            {errors.datiGenerali?.dataInizio && (
+              <div className="invalid-feedback">
+                {errors.datiGenerali.dataInizio.message}
               </div>
             )}
           </div>
 
           <div className="col-md-4 mb-3">
-            <label htmlFor="mese" className="form-label">
-              Mese *
+            <label htmlFor="dataFine" className="form-label">
+              Data Fine Periodo *
             </label>
-            <select
-              className={`form-select ${errors.datiGenerali?.mese ? 'is-invalid' : ''}`}
-              {...register('datiGenerali.mese')}
-            >
-              <option value="">Seleziona mese</option>
-              {mesi.map(mese => (
-                <option key={mese} value={mese}>{mese}</option>
-              ))}
-            </select>
-            {errors.datiGenerali?.mese && (
+            <input
+              type="date"
+              className={`form-control ${errors.datiGenerali?.dataFine ? 'is-invalid' : ''}`}
+              {...register('datiGenerali.dataFine')}
+            />
+            {errors.datiGenerali?.dataFine && (
               <div className="invalid-feedback">
-                {errors.datiGenerali.mese.message}
+                {errors.datiGenerali.dataFine.message}
               </div>
             )}
           </div>
@@ -84,270 +228,60 @@ const DatiGenerali = () => {
         </div>
       </div>
 
-      {/* Sezione Beneficiario */}
-      <div className="col-12 mb-4">
-        <h6 className="text-primary mb-3">
-          <i className="bi bi-person me-2"></i>
-          Dati del Beneficiario/Interdetto
-        </h6>
-        <div className="row">
-          <div className="col-md-6 mb-3">
-            <label htmlFor="beneficiario_nome" className="form-label">
-              Nome *
-            </label>
-            <input
-              type="text"
-              className={`form-control ${errors.datiGenerali?.beneficiario?.nome ? 'is-invalid' : ''}`}
-              placeholder="Nome del beneficiario"
-              {...register('datiGenerali.beneficiario.nome')}
-            />
-            {errors.datiGenerali?.beneficiario?.nome && (
-              <div className="invalid-feedback">
-                {errors.datiGenerali.beneficiario.nome.message}
-              </div>
-            )}
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label htmlFor="beneficiario_cognome" className="form-label">
-              Cognome *
-            </label>
-            <input
-              type="text"
-              className={`form-control ${errors.datiGenerali?.beneficiario?.cognome ? 'is-invalid' : ''}`}
-              placeholder="Cognome del beneficiario"
-              {...register('datiGenerali.beneficiario.cognome')}
-            />
-            {errors.datiGenerali?.beneficiario?.cognome && (
-              <div className="invalid-feedback">
-                {errors.datiGenerali.beneficiario.cognome.message}
-              </div>
-            )}
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label htmlFor="beneficiario_codiceFiscale" className="form-label">
-              Codice Fiscale *
-            </label>
-            <input
-              type="text"
-              className={`form-control ${errors.datiGenerali?.beneficiario?.codiceFiscale ? 'is-invalid' : ''}`}
-              placeholder="RSSMRA80A01H501Z"
-              style={{ textTransform: 'uppercase' }}
-              {...register('datiGenerali.beneficiario.codiceFiscale')}
-            />
-            {errors.datiGenerali?.beneficiario?.codiceFiscale && (
-              <div className="invalid-feedback">
-                {errors.datiGenerali.beneficiario.codiceFiscale.message}
-              </div>
-            )}
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label htmlFor="beneficiario_dataNascita" className="form-label">
-              Data di Nascita *
-            </label>
-            <input
-              type="date"
-              className={`form-control ${errors.datiGenerali?.beneficiario?.dataNascita ? 'is-invalid' : ''}`}
-              {...register('datiGenerali.beneficiario.dataNascita')}
-            />
-            {errors.datiGenerali?.beneficiario?.dataNascita && (
-              <div className="invalid-feedback">
-                {errors.datiGenerali.beneficiario.dataNascita.message}
-              </div>
-            )}
-          </div>
-
-          <div className="col-md-12 mb-3">
-            <label htmlFor="beneficiario_luogoNascita" className="form-label">
-              Luogo di Nascita
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Città di nascita"
-              {...register('datiGenerali.beneficiario.luogoNascita')}
-            />
-          </div>
-        </div>
-
-        {/* Indirizzo Beneficiario */}
-        <h6 className="text-secondary mb-3 mt-4">Indirizzo di Residenza</h6>
-        <div className="row">
-          <div className="col-md-8 mb-3">
-            <label htmlFor="beneficiario_via" className="form-label">
-              Via/Piazza
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Via, numero civico"
-              {...register('datiGenerali.beneficiario.indirizzo.via')}
-            />
-          </div>
-
-          <div className="col-md-4 mb-3">
-            <label htmlFor="beneficiario_cap" className="form-label">
-              CAP
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="00000"
-              {...register('datiGenerali.beneficiario.indirizzo.cap')}
-            />
-          </div>
-
-          <div className="col-md-8 mb-3">
-            <label htmlFor="beneficiario_citta" className="form-label">
-              Città
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Città"
-              {...register('datiGenerali.beneficiario.indirizzo.citta')}
-            />
-          </div>
-
-          <div className="col-md-4 mb-3">
-            <label htmlFor="beneficiario_provincia" className="form-label">
-              Provincia
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="XX"
-              style={{ textTransform: 'uppercase' }}
-              maxLength="2"
-              {...register('datiGenerali.beneficiario.indirizzo.provincia')}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Sezione Amministratore */}
+      {/* Sezione Amministratore (Read-only) */}
       <div className="col-12 mb-4">
         <h6 className="text-primary mb-3">
           <i className="bi bi-person-badge me-2"></i>
-          Dati dell'Amministratore di Sostegno/Tutore
+          Dati dell'Amministratore di Sostegno
         </h6>
+        
+        <div className="card bg-light">
+          <div className="card-body">
         <div className="row">
-          <div className="col-md-6 mb-3">
-            <label htmlFor="amministratore_nome" className="form-label">
-              Nome *
-            </label>
-            <input
-              type="text"
-              className={`form-control ${errors.datiGenerali?.amministratore?.nome ? 'is-invalid' : ''}`}
-              placeholder="Nome dell'amministratore"
-              {...register('datiGenerali.amministratore.nome')}
-            />
-            {errors.datiGenerali?.amministratore?.nome && (
-              <div className="invalid-feedback">
-                {errors.datiGenerali.amministratore.nome.message}
+              <div className="col-md-6">
+                <p className="mb-2">
+                  <strong>Nome Completo:</strong> {user?.nome} {user?.cognome}
+                </p>
+                <p className="mb-2">
+                  <strong>Codice Fiscale:</strong> {user?.codiceFiscale || 'Non specificato'}
+                </p>
+                <p className="mb-2">
+                  <strong>Email:</strong> {user?.email}
+                </p>
               </div>
-            )}
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label htmlFor="amministratore_cognome" className="form-label">
-              Cognome *
-            </label>
-            <input
-              type="text"
-              className={`form-control ${errors.datiGenerali?.amministratore?.cognome ? 'is-invalid' : ''}`}
-              placeholder="Cognome dell'amministratore"
-              {...register('datiGenerali.amministratore.cognome')}
-            />
-            {errors.datiGenerali?.amministratore?.cognome && (
-              <div className="invalid-feedback">
-                {errors.datiGenerali.amministratore.cognome.message}
-              </div>
-            )}
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label htmlFor="amministratore_codiceFiscale" className="form-label">
-              Codice Fiscale *
-            </label>
-            <input
-              type="text"
-              className={`form-control ${errors.datiGenerali?.amministratore?.codiceFiscale ? 'is-invalid' : ''}`}
-              placeholder="RSSMRA80A01H501Z"
-              style={{ textTransform: 'uppercase' }}
-              {...register('datiGenerali.amministratore.codiceFiscale')}
-            />
-            {errors.datiGenerali?.amministratore?.codiceFiscale && (
-              <div className="invalid-feedback">
-                {errors.datiGenerali.amministratore.codiceFiscale.message}
-              </div>
+              <div className="col-md-6">
+                {user?.dataNascita && (
+                  <p className="mb-2">
+                    <strong>Data di Nascita:</strong> {' '}
+                    {new Date(user.dataNascita).toLocaleDateString('it-IT')}
+                  </p>
+                )}
+                {user?.luogoNascita && (
+                  <p className="mb-2">
+                    <strong>Luogo di Nascita:</strong> {user.luogoNascita}
+                  </p>
+                )}
+                {user?.professione && (
+                  <p className="mb-2">
+                    <strong>Professione:</strong> {user.professione}
+                  </p>
+                )}
+                {user?.numeroAlbo && (
+                  <p className="mb-0">
+                    <strong>Numero Albo:</strong> {user.numeroAlbo}
+                  </p>
             )}
           </div>
         </div>
 
-        {/* Indirizzo Amministratore */}
-        <h6 className="text-secondary mb-3 mt-4">Indirizzo di Residenza</h6>
-        <div className="row">
-          <div className="col-md-8 mb-3">
-            <label htmlFor="amministratore_via" className="form-label">
-              Via/Piazza
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Via, numero civico"
-              {...register('datiGenerali.amministratore.indirizzo.via')}
-            />
+            <div className="mt-2">
+              <small className="text-muted">
+                <i className="bi bi-info-circle me-1"></i>
+                I dati dell'amministratore possono essere modificati nella 
+                <a href="/profile" className="ms-1">pagina profilo</a>
+              </small>
           </div>
-
-          <div className="col-md-4 mb-3">
-            <label htmlFor="amministratore_cap" className="form-label">
-              CAP
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="00000"
-              {...register('datiGenerali.amministratore.indirizzo.cap')}
-            />
           </div>
-
-          <div className="col-md-8 mb-3">
-            <label htmlFor="amministratore_citta" className="form-label">
-              Città
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Città"
-              {...register('datiGenerali.amministratore.indirizzo.citta')}
-            />
-          </div>
-
-          <div className="col-md-4 mb-3">
-            <label htmlFor="amministratore_provincia" className="form-label">
-              Provincia
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="XX"
-              style={{ textTransform: 'uppercase' }}
-              maxLength="2"
-              {...register('datiGenerali.amministratore.indirizzo.provincia')}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Info Helper */}
-      <div className="col-12">
-        <div className="alert alert-info">
-          <i className="bi bi-info-circle me-2"></i>
-          <strong>Nota:</strong> I campi contrassegnati con * sono obbligatori. 
-          I dati dell'amministratore sono stati precompilati con le informazioni del tuo profilo.
         </div>
       </div>
     </div>

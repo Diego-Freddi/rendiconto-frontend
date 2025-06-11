@@ -5,6 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useRendiconto } from '../../contexts/RendicontoContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useBeneficiario } from '../../contexts/BeneficiarioContext';
 
 // Componenti delle sezioni
 import DatiGenerali from './components/DatiGenerali';
@@ -15,81 +16,27 @@ import Firma from './components/Firma';
 
 // Schema di validazione completo
 const schema = yup.object({
+  // Beneficiario selezionato
+  beneficiarioId: yup
+    .string()
+    .required('Beneficiario richiesto'),
+  
   // Dati Generali
   datiGenerali: yup.object({
-    anno: yup
-      .number()
-      .required('Anno richiesto')
-      .min(2000, 'Anno non valido')
-      .max(new Date().getFullYear() + 1, 'Anno non può essere futuro'),
-    mese: yup
-      .string()
-      .required('Mese richiesto')
-      .oneOf(['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
-              'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']),
+    dataInizio: yup
+      .date()
+      .required('Data di inizio richiesta'),
+    dataFine: yup
+      .date()
+      .required('Data di fine richiesta')
+      .test('data-fine-dopo-inizio', 'La data di fine deve essere successiva alla data di inizio', function(value) {
+        const { dataInizio } = this.parent;
+        return !dataInizio || !value || new Date(value) > new Date(dataInizio);
+      }),
     rg_numero: yup
       .string()
       .required('Numero R.G. richiesto')
-      .max(50, 'Numero R.G. troppo lungo'),
-    
-    // Beneficiario
-    beneficiario: yup.object({
-      nome: yup.string().required('Nome beneficiario richiesto').max(50),
-      cognome: yup.string().required('Cognome beneficiario richiesto').max(50),
-      codiceFiscale: yup
-        .string()
-        .required('Codice fiscale beneficiario richiesto')
-        .matches(/^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/, 'Codice fiscale non valido'),
-      dataNascita: yup.date().required('Data di nascita richiesta'),
-      luogoNascita: yup.string().max(100),
-      indirizzo: yup.object({
-        via: yup.string(),
-        citta: yup.string(),
-        cap: yup.string(),
-        provincia: yup.string()
-      })
-    }),
-    
-    // Amministratore
-    amministratore: yup.object({
-      nome: yup.string().required('Nome amministratore richiesto').max(50),
-      cognome: yup.string().required('Cognome amministratore richiesto').max(50),
-      codiceFiscale: yup
-        .string()
-        .required('Codice fiscale amministratore richiesto')
-        .matches(/^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/, 'Codice fiscale non valido'),
-      indirizzo: yup.object({
-        via: yup.string(),
-        citta: yup.string(),
-        cap: yup.string(),
-        provincia: yup.string()
-      })
-    })
-  }),
-  
-  // Condizioni Personali
-  condizioniPersonali: yup.string().max(5000, 'Testo troppo lungo'),
-  
-  // Situazione Patrimoniale
-  situazionePatrimoniale: yup.object({
-    beniImmobili: yup.array().of(
-      yup.object({
-        descrizione: yup.string().required('Descrizione richiesta'),
-        valore: yup.number().min(0, 'Valore non può essere negativo').required('Valore richiesto')
-      })
-    ),
-    beniMobili: yup.array().of(
-      yup.object({
-        descrizione: yup.string().required('Descrizione richiesta'),
-        valore: yup.number().min(0, 'Valore non può essere negativo').required('Valore richiesto')
-      })
-    ),
-    titoliConti: yup.array().of(
-      yup.object({
-        descrizione: yup.string().required('Descrizione richiesta'),
-        valore: yup.number().min(0, 'Valore non può essere negativo').required('Valore richiesto')
-      })
-    )
+      .max(50, 'Numero R.G. troppo lungo')
   }),
   
   // Conto Economico
@@ -133,6 +80,11 @@ const RendicontoForm = () => {
     fetchRendiconto,
     loading 
   } = useRendiconto();
+  const { 
+    beneficiari, 
+    fetchBeneficiari,
+    loading: loadingBeneficiari 
+  } = useBeneficiario();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
@@ -144,18 +96,6 @@ const RendicontoForm = () => {
       title: 'Dati Generali', 
       component: DatiGenerali,
       icon: 'bi-person-badge'
-    },
-    { 
-      id: 'condizioniPersonali', 
-      title: 'Condizioni Personali', 
-      component: CondizioniPersonali,
-      icon: 'bi-heart-pulse'
-    },
-    { 
-      id: 'situazionePatrimoniale', 
-      title: 'Situazione Patrimoniale', 
-      component: SituazionePatrimoniale,
-      icon: 'bi-house'
     },
     { 
       id: 'contoEconomico', 
@@ -173,40 +113,11 @@ const RendicontoForm = () => {
 
   // Valori di default
   const defaultValues = {
+    beneficiarioId: '',
     datiGenerali: {
-      anno: new Date().getFullYear(),
-      mese: '',
-      rg_numero: '',
-      beneficiario: {
-        nome: '',
-        cognome: '',
-        codiceFiscale: '',
-        dataNascita: '',
-        luogoNascita: '',
-        indirizzo: {
-          via: '',
-          citta: '',
-          cap: '',
-          provincia: ''
-        }
-      },
-      amministratore: {
-        nome: user?.nome || '',
-        cognome: user?.cognome || '',
-        codiceFiscale: user?.codiceFiscale || '',
-        indirizzo: {
-          via: '',
-          citta: '',
-          cap: '',
-          provincia: ''
-        }
-      }
-    },
-    condizioniPersonali: '',
-    situazionePatrimoniale: {
-      beniImmobili: [],
-      beniMobili: [],
-      titoliConti: []
+      dataInizio: '',
+      dataFine: '',
+      rg_numero: ''
     },
     contoEconomico: {
       entrate: [],
@@ -232,6 +143,12 @@ const RendicontoForm = () => {
 
   const { handleSubmit, reset, watch, formState: { isDirty } } = methods;
 
+  // Carica beneficiari all'avvio
+  useEffect(() => {
+    fetchBeneficiari();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Carica rendiconto se in modalità modifica
   useEffect(() => {
     console.log('RendicontoForm useEffect triggered with id:', id);
@@ -253,23 +170,12 @@ const RendicontoForm = () => {
             // Assicurati che la struttura sia corretta e converti le date
             const formData = {
               ...defaultValues,
-              ...rendiconto,
+              beneficiarioId: rendiconto.beneficiarioId?._id || rendiconto.beneficiarioId || '',
               datiGenerali: {
                 ...defaultValues.datiGenerali,
                 ...rendiconto.datiGenerali,
-                beneficiario: {
-                  ...defaultValues.datiGenerali.beneficiario,
-                  ...rendiconto.datiGenerali?.beneficiario,
-                  dataNascita: formatDateForInput(rendiconto.datiGenerali?.beneficiario?.dataNascita)
-                },
-                amministratore: {
-                  ...defaultValues.datiGenerali.amministratore,
-                  ...rendiconto.datiGenerali?.amministratore
-                }
-              },
-              situazionePatrimoniale: {
-                ...defaultValues.situazionePatrimoniale,
-                ...rendiconto.situazionePatrimoniale
+                dataInizio: formatDateForInput(rendiconto.datiGenerali?.dataInizio),
+                dataFine: formatDateForInput(rendiconto.datiGenerali?.dataFine)
               },
               contoEconomico: {
                 ...defaultValues.contoEconomico,
@@ -294,7 +200,8 @@ const RendicontoForm = () => {
       console.log('Setting editing to false');
       setIsEditing(false);
     }
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]); // fetchRendiconto non incluso nelle dipendenze per evitare loop infiniti
 
   // Auto-save disabilitato temporaneamente per debug
   // useEffect(() => {
@@ -411,7 +318,7 @@ const RendicontoForm = () => {
               </h2>
               <p className="text-muted mb-0">
                 {isEditing && currentRendiconto 
-                  ? `${currentRendiconto.datiGenerali?.beneficiario?.nome} ${currentRendiconto.datiGenerali?.beneficiario?.cognome} - ${currentRendiconto.datiGenerali?.anno}`
+                  ? `${currentRendiconto.beneficiarioId?.nome} ${currentRendiconto.beneficiarioId?.cognome} - ${currentRendiconto.datiGenerali?.anno}`
                   : 'Compila tutti i campi richiesti per creare il rendiconto'
                 }
               </p>

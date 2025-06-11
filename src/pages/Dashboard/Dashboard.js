@@ -16,7 +16,8 @@ const Dashboard = () => {
   useEffect(() => {
     // Carica i rendiconti al mount
     fetchRendiconti();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // fetchRendiconti non incluso nelle dipendenze per evitare loop infiniti
 
   useEffect(() => {
     // Calcola le statistiche quando cambiano i rendiconti
@@ -150,7 +151,7 @@ const Dashboard = () => {
                       {recentRendiconti.map((rendiconto) => (
                         <tr key={rendiconto._id}>
                           <td>
-                            <strong>{rendiconto.datiGenerali?.beneficiario?.nome} {rendiconto.datiGenerali?.beneficiario?.cognome}</strong>
+                            <strong>{rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}</strong>
                           </td>
                           <td>{rendiconto.datiGenerali?.anno}</td>
                           <td>

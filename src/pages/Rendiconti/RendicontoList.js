@@ -28,7 +28,8 @@ const RendicontoList = () => {
   // Carica rendiconti al mount e quando cambiano i filtri
   useEffect(() => {
     fetchRendiconti(filters);
-  }, [filters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]); // fetchRendiconti non incluso nelle dipendenze per evitare loop infiniti
 
   // Chiudi dropdown quando si clicca fuori
   useEffect(() => {
@@ -258,13 +259,21 @@ const RendicontoList = () => {
                           <td>
                             <div>
                               <div className="fw-bold">
-                                {rendiconto.datiGenerali?.beneficiario?.nome} {rendiconto.datiGenerali?.beneficiario?.cognome}
+                                {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}
                               </div>
+                              <small className="text-muted">
+                                {rendiconto.beneficiarioId?.codiceFiscale}
+                              </small>
                             </div>
                           </td>
                           <td>
                             <span className="badge bg-light text-dark">
-                              {rendiconto.datiGenerali?.mese} {rendiconto.datiGenerali?.anno}
+                              {rendiconto.periodoFormattato || 
+                                (rendiconto.datiGenerali?.dataInizio && rendiconto.datiGenerali?.dataFine ? 
+                                  `${formatDate(rendiconto.datiGenerali.dataInizio)} - ${formatDate(rendiconto.datiGenerali.dataFine)}` : 
+                                  `${rendiconto.datiGenerali?.anno || 'N/A'}`
+                                )
+                              }
                             </span>
                           </td>
                           <td>
@@ -275,7 +284,7 @@ const RendicontoList = () => {
                               {rendiconto.stato}
                             </span>
                           </td>
-                          <td>{formatCurrency(rendiconto.totalePatrimonio)}</td>
+                          <td>{formatCurrency(rendiconto.beneficiarioId?.totalePatrimonio || 0)}</td>
                           <td className="text-success">{formatCurrency(rendiconto.totaleEntrate)}</td>
                           <td className="text-danger">{formatCurrency(rendiconto.totaleUscite)}</td>
                           <td>{formatDate(rendiconto.createdAt)}</td>

@@ -170,6 +170,28 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Aggiorna profilo completo amministratore
+  const updateProfileCompleto = async (profileData) => {
+    try {
+      setLoading(true);
+      const response = await axios.put('/auth/profile-completo', profileData);
+      
+      const updatedUser = response.data.user;
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
+      toast.success('Profilo completo aggiornato con successo!');
+      return { success: true, user: updatedUser };
+      
+    } catch (error) {
+      const message = error.response?.data?.message || 'Errore durante l\'aggiornamento del profilo completo';
+      toast.error(message);
+      return { success: false, error: message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -177,7 +199,8 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    updateProfile
+    updateProfile,
+    updateProfileCompleto
   };
 
   return (

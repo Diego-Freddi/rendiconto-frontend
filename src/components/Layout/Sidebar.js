@@ -14,6 +14,11 @@ const Sidebar = () => {
       label: 'Rendiconti'
     },
     {
+      path: '/beneficiari',
+      icon: 'bi-people',
+      label: 'Beneficiari'
+    },
+    {
       path: '/categorie',
       icon: 'bi-tags',
       label: 'Categorie'

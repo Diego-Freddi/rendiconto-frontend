@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useRendiconto } from '../../contexts/RendicontoContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import { pdf } from '@react-pdf/renderer';
 import RendicontoPDF from '../../components/PDF/RendicontoPDF';
@@ -9,6 +10,7 @@ import { raggruppaPerCategoria } from '../../utils/categoriaUtils';
 const RendicontoDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { fetchRendiconto, loading } = useRendiconto();
   const [rendiconto, setRendiconto] = useState(null);
 
@@ -73,10 +75,10 @@ const RendicontoDetail = () => {
       toast.info('Generazione PDF in corso...');
       
       // Genera il PDF
-      const blob = await pdf(<RendicontoPDF rendiconto={rendiconto} />).toBlob();
+      const blob = await pdf(<RendicontoPDF rendiconto={rendiconto} amministratore={user} />).toBlob();
       
       // Crea il nome del file
-      const fileName = `Rendiconto_${datiGenerali?.beneficiario?.cognome || 'Sconosciuto'}_${datiGenerali?.mese || 'XX'}_${datiGenerali?.anno || 'XXXX'}.pdf`;
+      const fileName = `Rendiconto_${rendiconto.beneficiarioId?.cognome || 'Sconosciuto'}_${datiGenerali?.anno || 'XXXX'}.pdf`;
       
       // Crea il link per il download
       const url = URL.createObjectURL(blob);
@@ -134,8 +136,13 @@ const RendicontoDetail = () => {
             <div>
               <h2 className="mb-1">Dettagli Rendiconto</h2>
               <p className="text-muted mb-0">
-                {datiGenerali?.beneficiario?.nome} {datiGenerali?.beneficiario?.cognome} - 
-                {datiGenerali?.mese} {datiGenerali?.anno}
+                {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome} - 
+                {rendiconto.periodoFormattato || 
+                  (datiGenerali?.dataInizio && datiGenerali?.dataFine ? 
+                    `${formatDate(datiGenerali.dataInizio)} - ${formatDate(datiGenerali.dataFine)}` : 
+                    `Anno ${datiGenerali?.anno || 'N/A'}`
+                  )
+                }
               </p>
             </div>
             <div className="btn-group">
@@ -185,7 +192,12 @@ const RendicontoDetail = () => {
                     Amministrazione di sostegno/tutela: R.G. n. {datiGenerali?.rg_numero || '_______________'}
                   </h4>
                   <p className="text-muted mb-0">
-                    Periodo: {datiGenerali?.mese || '___'} {datiGenerali?.anno || '____'}
+                    Periodo: {rendiconto.periodoFormattato || 
+                      (datiGenerali?.dataInizio && datiGenerali?.dataFine ? 
+                        `${formatDate(datiGenerali.dataInizio)} - ${formatDate(datiGenerali.dataFine)}` : 
+                        `Anno ${datiGenerali?.anno || '____'}`
+                      )
+                    }
                   </p>
                 </div>
               </div>
@@ -211,27 +223,27 @@ const RendicontoDetail = () => {
                           <tbody>
                             <tr>
                               <td className="fw-bold">Nome:</td>
-                              <td>{datiGenerali?.beneficiario?.nome || 'Non specificato'}</td>
+                              <td>{rendiconto.beneficiarioId?.nome || 'Non specificato'}</td>
                             </tr>
                             <tr>
                               <td className="fw-bold">Cognome:</td>
-                              <td>{datiGenerali?.beneficiario?.cognome || 'Non specificato'}</td>
+                              <td>{rendiconto.beneficiarioId?.cognome || 'Non specificato'}</td>
                             </tr>
                             <tr>
                               <td className="fw-bold">Codice Fiscale:</td>
-                              <td className="font-monospace">{datiGenerali?.beneficiario?.codiceFiscale || 'Non specificato'}</td>
+                              <td className="font-monospace">{rendiconto.beneficiarioId?.codiceFiscale || 'Non specificato'}</td>
                             </tr>
                             <tr>
                               <td className="fw-bold">Data di Nascita:</td>
-                              <td>{formatDate(datiGenerali?.beneficiario?.dataNascita)}</td>
+                              <td>{formatDate(rendiconto.beneficiarioId?.dataNascita) || 'Non specificata'}</td>
                             </tr>
                             <tr>
                               <td className="fw-bold">Luogo di Nascita:</td>
-                              <td>{datiGenerali?.beneficiario?.luogoNascita || 'Non specificato'}</td>
+                              <td>{rendiconto.beneficiarioId?.luogoNascita || 'Non specificato'}</td>
                             </tr>
                             <tr>
                               <td className="fw-bold">Indirizzo:</td>
-                              <td>{formatAddress(datiGenerali?.beneficiario?.indirizzo) || 'Non specificato'}</td>
+                              <td>{formatAddress(rendiconto.beneficiarioId?.indirizzo) || 'Non specificato'}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -252,20 +264,26 @@ const RendicontoDetail = () => {
                           <tbody>
                             <tr>
                               <td className="fw-bold">Nome:</td>
-                              <td>{datiGenerali?.amministratore?.nome || 'Non specificato'}</td>
+                              <td>{user?.nome || 'Non specificato'}</td>
                             </tr>
                             <tr>
                               <td className="fw-bold">Cognome:</td>
-                              <td>{datiGenerali?.amministratore?.cognome || 'Non specificato'}</td>
+                              <td>{user?.cognome || 'Non specificato'}</td>
                             </tr>
                             <tr>
                               <td className="fw-bold">Codice Fiscale:</td>
-                              <td className="font-monospace">{datiGenerali?.amministratore?.codiceFiscale || 'Non specificato'}</td>
+                              <td className="font-monospace">{user?.codiceFiscale || 'Non specificato'}</td>
                             </tr>
                             <tr>
-                              <td className="fw-bold">Indirizzo:</td>
-                              <td>{formatAddress(datiGenerali?.amministratore?.indirizzo) || 'Non specificato'}</td>
+                              <td className="fw-bold">Email:</td>
+                              <td>{user?.email || 'Non specificato'}</td>
                             </tr>
+                            {user?.professione && (
+                              <tr>
+                                <td className="fw-bold">Professione:</td>
+                                <td>{user.professione}</td>
+                              </tr>
+                            )}
                           </tbody>
                         </table>
                       </div>
@@ -282,9 +300,9 @@ const RendicontoDetail = () => {
                 </h3>
                 <div className="card">
                   <div className="card-body">
-                    {condizioniPersonali ? (
+                    {rendiconto.beneficiarioId?.condizioniPersonali ? (
                       <div className="text-justify" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                        {condizioniPersonali}
+                        {rendiconto.beneficiarioId.condizioniPersonali}
                       </div>
                     ) : (
                       <p className="text-muted fst-italic">Nessuna informazione inserita</p>
@@ -313,8 +331,8 @@ const RendicontoDetail = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {situazionePatrimoniale?.beniImmobili?.length > 0 ? (
-                      situazionePatrimoniale.beniImmobili.map((bene, index) => (
+                    {rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili?.length > 0 ? (
+                      rendiconto.beneficiarioId.situazionePatrimoniale.beniImmobili.map((bene, index) => (
                         <tr key={index}>
                           <td>{bene.descrizione}</td>
                           <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
@@ -328,7 +346,7 @@ const RendicontoDetail = () => {
                       </tr>
                     )}
                     {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - (situazionePatrimoniale?.beniImmobili?.length || 0)) }).map((_, index) => (
+                    {Array.from({ length: Math.max(0, 20 - (rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili?.length || 0)) }).map((_, index) => (
                       <tr key={`empty-${index}`} style={{ height: '40px' }}>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
@@ -339,7 +357,7 @@ const RendicontoDetail = () => {
                     <tr>
                       <th>TOTALE BENI IMMOBILI</th>
                       <th className="text-end">
-                        {formatCurrency(calculateTotal(situazionePatrimoniale?.beniImmobili))}
+                        {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili))}
                       </th>
                     </tr>
                   </tfoot>
@@ -365,8 +383,8 @@ const RendicontoDetail = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {situazionePatrimoniale?.beniMobili?.length > 0 ? (
-                      situazionePatrimoniale.beniMobili.map((bene, index) => (
+                    {rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili?.length > 0 ? (
+                      rendiconto.beneficiarioId.situazionePatrimoniale.beniMobili.map((bene, index) => (
                         <tr key={index}>
                           <td>{bene.descrizione}</td>
                           <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
@@ -380,7 +398,7 @@ const RendicontoDetail = () => {
                       </tr>
                     )}
                     {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - (situazionePatrimoniale?.beniMobili?.length || 0)) }).map((_, index) => (
+                    {Array.from({ length: Math.max(0, 20 - (rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili?.length || 0)) }).map((_, index) => (
                       <tr key={`empty-${index}`} style={{ height: '40px' }}>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
@@ -391,7 +409,7 @@ const RendicontoDetail = () => {
                     <tr>
                       <th>TOTALE BENI MOBILI</th>
                       <th className="text-end">
-                        {formatCurrency(calculateTotal(situazionePatrimoniale?.beniMobili))}
+                        {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili))}
                       </th>
                     </tr>
                   </tfoot>
@@ -417,8 +435,8 @@ const RendicontoDetail = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {situazionePatrimoniale?.titoliConti?.length > 0 ? (
-                      situazionePatrimoniale.titoliConti.map((bene, index) => (
+                    {rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti?.length > 0 ? (
+                      rendiconto.beneficiarioId.situazionePatrimoniale.titoliConti.map((bene, index) => (
                         <tr key={index}>
                           <td>{bene.descrizione}</td>
                           <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
@@ -432,7 +450,7 @@ const RendicontoDetail = () => {
                       </tr>
                     )}
                     {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - (situazionePatrimoniale?.titoliConti?.length || 0)) }).map((_, index) => (
+                    {Array.from({ length: Math.max(0, 20 - (rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti?.length || 0)) }).map((_, index) => (
                       <tr key={`empty-${index}`} style={{ height: '40px' }}>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
@@ -443,7 +461,7 @@ const RendicontoDetail = () => {
                     <tr>
                       <th>TOTALE TITOLI E CONTI</th>
                       <th className="text-end">
-                        {formatCurrency(calculateTotal(situazionePatrimoniale?.titoliConti))}
+                        {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti))}
                       </th>
                     </tr>
                   </tfoot>
@@ -616,9 +634,9 @@ const RendicontoDetail = () => {
                           <td className="fw-bold fs-5">VALORE TOTALE DEL PATRIMONIO</td>
                           <td className="text-end fw-bold fs-5">
                             {formatCurrency(
-                              calculateTotal(situazionePatrimoniale?.beniImmobili) +
-                              calculateTotal(situazionePatrimoniale?.beniMobili) +
-                              calculateTotal(situazionePatrimoniale?.titoliConti)
+                                              calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili) +
+                calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili) +
+                calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti)
                             )}
                           </td>
                         </tr>
@@ -703,7 +721,7 @@ const RendicontoDetail = () => {
                         </div>
                       </div>
                       <div className="fs-5 fw-bold">
-                        {datiGenerali?.amministratore?.nome} {datiGenerali?.amministratore?.cognome}
+                        {user?.nome} {user?.cognome}
                       </div>
                     </div>
                   </div>

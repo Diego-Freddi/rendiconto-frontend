@@ -9,6 +9,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { RendicontoProvider } from './contexts/RendicontoContext';
 import { CategoriaProvider } from './contexts/CategoriaContext';
+import { BeneficiarioProvider } from './contexts/BeneficiarioContext';
 
 // Components
 import Layout from './components/Layout/Layout';
@@ -23,13 +24,17 @@ import RendicontoForm from './pages/Rendiconti/RendicontoForm';
 import RendicontoDetail from './pages/Rendiconti/RendicontoDetail';
 import Categorie from './pages/Categorie/Categorie';
 import Profile from './pages/Profile/Profile';
+import BeneficiariList from './pages/Beneficiari/BeneficiariList';
+import BeneficiarioForm from './pages/Beneficiari/BeneficiarioForm';
+import BeneficiarioDetail from './pages/Beneficiari/BeneficiarioDetail';
 
 function App() {
   return (
     <AuthProvider>
       <RendicontoProvider>
         <CategoriaProvider>
-          <Router>
+          <BeneficiarioProvider>
+            <Router>
     <div className="App">
             <Routes>
               {/* Routes pubbliche */}
@@ -49,6 +54,10 @@ function App() {
                 <Route path="rendiconti/:id" element={<RendicontoDetail />} />
                 <Route path="rendiconti/:id/modifica" element={<RendicontoForm />} />
                 <Route path="categorie" element={<Categorie />} />
+                <Route path="beneficiari" element={<BeneficiariList />} />
+                <Route path="beneficiari/nuovo" element={<BeneficiarioForm />} />
+                <Route path="beneficiari/:id/modifica" element={<BeneficiarioForm />} />
+                <Route path="beneficiari/:id" element={<BeneficiarioDetail />} />
                 <Route path="profilo" element={<Profile />} />
               </Route>
               
@@ -70,7 +79,8 @@ function App() {
               theme="light"
             />
     </div>
-          </Router>
+            </Router>
+          </BeneficiarioProvider>
         </CategoriaProvider>
       </RendicontoProvider>
     </AuthProvider>
