@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useAuth } from './AuthContext';
 
 const CategoriaContext = createContext();
 
@@ -13,6 +14,7 @@ export const useCategorie = () => {
 };
 
 export const CategoriaProvider = ({ children }) => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [categorie, setCategorie] = useState([]);
   const [categorieDefault, setCategorieDefault] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -111,11 +113,14 @@ export const CategoriaProvider = ({ children }) => {
     }
   };
 
-  // Carica categorie al mount
+  // Carica categorie solo quando l'utente è autenticato
   useEffect(() => {
-    fetchCategorie(); // Carica tutte le categorie (default + personalizzate)
-    fetchCategorieDefault(); // Carica solo le categorie default (senza filtro tipo)
-  }, []);
+    if (isAuthenticated && !authLoading) {
+      fetchCategorie(); // Carica tutte le categorie (default + personalizzate)
+      fetchCategorieDefault(); // Carica solo le categorie default (senza filtro tipo)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, authLoading]);
 
   // Utility per ottenere categorie per tipo
   const getCategoriePerTipo = (tipo) => {
