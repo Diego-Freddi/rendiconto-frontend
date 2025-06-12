@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRendiconto } from '../../contexts/RendicontoContext';
+import { useResponsive } from '../../hooks/useResponsive';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { rendiconti, fetchRendiconti, loading } = useRendiconto();
+  const { isMobile } = useResponsive();
   const [stats, setStats] = useState({
     totaleRendiconti: 0,
     bozze: 0,
@@ -43,9 +45,9 @@ const Dashboard = () => {
 
   return (
     <div>
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
+      {/* PATTERN D: Header responsive */}
+      <div className={`d-flex ${isMobile ? 'flex-column gap-3' : 'justify-content-between align-items-center'} mb-4`}>
+        <div className={isMobile ? 'text-center' : ''}>
           <h1 className="h3 mb-1">
             {getGreeting()}, {user?.nome}!
           </h1>
@@ -53,72 +55,75 @@ const Dashboard = () => {
             Ecco un riepilogo dei tuoi rendiconti
           </p>
         </div>
-        <Link to="/rendiconti/nuovo" className="btn btn-primary">
+        <Link 
+          to="/rendiconti/nuovo" 
+          className={`btn btn-primary ${isMobile ? 'mobile-full-width' : ''}`}
+        >
           <i className="bi bi-plus-circle me-2"></i>
           Nuovo Rendiconto
         </Link>
       </div>
 
-      {/* Statistiche */}
+      {/* PATTERN A: Statistiche responsive - 2 colonne mobile, 4 desktop */}
       <div className="row mb-4">
-        <div className="col-md-3 mb-3">
+        <div className="col-6 col-md-3 mb-3">
           <div className="card bg-primary text-white">
-            <div className="card-body">
+            <div className={`card-body ${isMobile ? 'mobile-p-2' : ''}`}>
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h4 className="mb-0">{stats.totaleRendiconti}</h4>
-                  <p className="mb-0">Totale Rendiconti</p>
+                  <h4 className={`mb-0 ${isMobile ? 'h5' : ''}`}>{stats.totaleRendiconti}</h4>
+                  <p className={`mb-0 ${isMobile ? 'small' : ''}`}>Totale Rendiconti</p>
                 </div>
-                <i className="bi bi-file-earmark-text" style={{ fontSize: '2rem' }}></i>
+                <i className="bi bi-file-earmark-text" style={{ fontSize: isMobile ? '1.5rem' : '2rem' }}></i>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="col-md-3 mb-3">
+        <div className="col-6 col-md-3 mb-3">
           <div className="card bg-warning text-white">
-            <div className="card-body">
+            <div className={`card-body ${isMobile ? 'mobile-p-2' : ''}`}>
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h4 className="mb-0">{stats.bozze}</h4>
-                  <p className="mb-0">Bozze</p>
+                  <h4 className={`mb-0 ${isMobile ? 'h5' : ''}`}>{stats.bozze}</h4>
+                  <p className={`mb-0 ${isMobile ? 'small' : ''}`}>Bozze</p>
                 </div>
-                <i className="bi bi-pencil-square" style={{ fontSize: '2rem' }}></i>
+                <i className="bi bi-pencil-square" style={{ fontSize: isMobile ? '1.5rem' : '2rem' }}></i>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="col-md-3 mb-3">
+        <div className="col-6 col-md-3 mb-3">
           <div className="card bg-success text-white">
-            <div className="card-body">
+            <div className={`card-body ${isMobile ? 'mobile-p-2' : ''}`}>
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h4 className="mb-0">{stats.completati}</h4>
-                  <p className="mb-0">Completati</p>
+                  <h4 className={`mb-0 ${isMobile ? 'h5' : ''}`}>{stats.completati}</h4>
+                  <p className={`mb-0 ${isMobile ? 'small' : ''}`}>Completati</p>
                 </div>
-                <i className="bi bi-check-circle" style={{ fontSize: '2rem' }}></i>
+                <i className="bi bi-check-circle" style={{ fontSize: isMobile ? '1.5rem' : '2rem' }}></i>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="col-md-3 mb-3">
+        <div className="col-6 col-md-3 mb-3">
           <div className="card bg-info text-white">
-            <div className="card-body">
+            <div className={`card-body ${isMobile ? 'mobile-p-2' : ''}`}>
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h4 className="mb-0">{stats.inviati}</h4>
-                  <p className="mb-0">Inviati</p>
+                  <h4 className={`mb-0 ${isMobile ? 'h5' : ''}`}>{stats.inviati}</h4>
+                  <p className={`mb-0 ${isMobile ? 'small' : ''}`}>Inviati</p>
                 </div>
-                <i className="bi bi-send" style={{ fontSize: '2rem' }}></i>
+                <i className="bi bi-send" style={{ fontSize: isMobile ? '1.5rem' : '2rem' }}></i>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Rendiconti recenti */}
+      {/* PATTERN B: Tabella responsive */}
       <div className="row">
         <div className="col-12">
           <div className="card">
@@ -136,61 +141,116 @@ const Dashboard = () => {
                   </div>
                 </div>
               ) : recentRendiconti.length > 0 ? (
-                <div className="table-responsive">
-                  <table className="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Beneficiario</th>
-                        <th>Anno</th>
-                        <th>Stato</th>
-                        <th>Ultima modifica</th>
-                        <th>Azioni</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                <>
+                  {/* Desktop: Tabella completa */}
+                  {!isMobile && (
+                    <div className="table-responsive">
+                      <table className="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Beneficiario</th>
+                            <th>Anno</th>
+                            <th>Stato</th>
+                            <th>Ultima modifica</th>
+                            <th>Azioni</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {recentRendiconti.map((rendiconto) => (
+                            <tr key={rendiconto._id}>
+                              <td>
+                                <strong>{rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}</strong>
+                              </td>
+                              <td>{rendiconto.datiGenerali?.anno}</td>
+                              <td>
+                                <span className={`badge ${
+                                  rendiconto.stato === 'bozza' ? 'bg-warning' :
+                                  rendiconto.stato === 'completato' ? 'bg-success' :
+                                  rendiconto.stato === 'inviato' ? 'bg-info' : 'bg-secondary'
+                                }`}>
+                                  {rendiconto.stato.charAt(0).toUpperCase() + rendiconto.stato.slice(1)}
+                                </span>
+                              </td>
+                              <td>
+                                {new Date(rendiconto.updatedAt).toLocaleDateString('it-IT')}
+                              </td>
+                              <td>
+                                <div className="btn-group btn-group-sm">
+                                  <Link
+                                    to={`/rendiconti/${rendiconto._id}`}
+                                    className="btn btn-outline-primary"
+                                    title="Visualizza"
+                                  >
+                                    <i className="bi bi-eye"></i>
+                                  </Link>
+                                  {rendiconto.stato !== 'inviato' && (
+                                    <Link
+                                      to={`/rendiconti/${rendiconto._id}/modifica`}
+                                      className="btn btn-outline-secondary"
+                                      title="Modifica"
+                                    >
+                                      <i className="bi bi-pencil"></i>
+                                    </Link>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Mobile: Card stack */}
+                  {isMobile && (
+                    <div className="row">
                       {recentRendiconti.map((rendiconto) => (
-                        <tr key={rendiconto._id}>
-                          <td>
-                            <strong>{rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}</strong>
-                          </td>
-                          <td>{rendiconto.datiGenerali?.anno}</td>
-                          <td>
-                            <span className={`badge ${
-                              rendiconto.stato === 'bozza' ? 'bg-warning' :
-                              rendiconto.stato === 'completato' ? 'bg-success' :
-                              rendiconto.stato === 'inviato' ? 'bg-info' : 'bg-secondary'
-                            }`}>
-                              {rendiconto.stato.charAt(0).toUpperCase() + rendiconto.stato.slice(1)}
-                            </span>
-                          </td>
-                          <td>
-                            {new Date(rendiconto.updatedAt).toLocaleDateString('it-IT')}
-                          </td>
-                          <td>
-                            <div className="btn-group btn-group-sm">
-                              <Link
-                                to={`/rendiconti/${rendiconto._id}`}
-                                className="btn btn-outline-primary"
-                                title="Visualizza"
-                              >
-                                <i className="bi bi-eye"></i>
-                              </Link>
-                              {rendiconto.stato !== 'inviato' && (
+                        <div key={rendiconto._id} className="col-12 mb-3">
+                          <div className="card mobile-card-compact">
+                            <div className="card-body">
+                              <div className="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                  <h6 className="card-title mb-1">
+                                    {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}
+                                  </h6>
+                                  <small className="text-muted">Anno {rendiconto.datiGenerali?.anno}</small>
+                                </div>
+                                <span className={`badge ${
+                                  rendiconto.stato === 'bozza' ? 'bg-warning' :
+                                  rendiconto.stato === 'completato' ? 'bg-success' :
+                                  rendiconto.stato === 'inviato' ? 'bg-info' : 'bg-secondary'
+                                }`}>
+                                  {rendiconto.stato.charAt(0).toUpperCase() + rendiconto.stato.slice(1)}
+                                </span>
+                              </div>
+                              <p className="card-text small text-muted mb-2">
+                                Ultima modifica: {new Date(rendiconto.updatedAt).toLocaleDateString('it-IT')}
+                              </p>
+                              <div className="d-flex gap-2">
                                 <Link
-                                  to={`/rendiconti/${rendiconto._id}/modifica`}
-                                  className="btn btn-outline-secondary"
-                                  title="Modifica"
+                                  to={`/rendiconti/${rendiconto._id}`}
+                                  className="btn btn-outline-primary btn-sm flex-fill"
                                 >
-                                  <i className="bi bi-pencil"></i>
+                                  <i className="bi bi-eye me-1"></i>
+                                  Visualizza
                                 </Link>
-                              )}
+                                {rendiconto.stato !== 'inviato' && (
+                                  <Link
+                                    to={`/rendiconti/${rendiconto._id}/modifica`}
+                                    className="btn btn-outline-secondary btn-sm flex-fill"
+                                  >
+                                    <i className="bi bi-pencil me-1"></i>
+                                    Modifica
+                                  </Link>
+                                )}
+                              </div>
                             </div>
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-4">
                   <i className="bi bi-file-earmark-text text-muted" style={{ fontSize: '3rem' }}></i>

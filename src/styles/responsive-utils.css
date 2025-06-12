@@ -1,0 +1,109 @@
+/* ===== RESPONSIVE UTILITIES ===== */
+
+/* Mobile Stack - Aggiunge spazio tra elementi in stack mobile */
+.mobile-stack > * + * {
+  margin-top: 0.75rem;
+}
+
+/* Mobile Full Width */
+.mobile-full-width {
+  width: 100%;
+}
+
+/* Mobile Specific Utilities */
+@media (max-width: 767.98px) {
+  .mobile-text-center { 
+    text-align: center !important; 
+  }
+  
+  .mobile-mb-3 { 
+    margin-bottom: 1rem !important; 
+  }
+  
+  .mobile-p-2 { 
+    padding: 0.5rem !important; 
+  }
+  
+  .mobile-gap-3 {
+    gap: 1rem !important;
+  }
+  
+  .mobile-flex-column {
+    flex-direction: column !important;
+  }
+  
+  /* Card compatte su mobile */
+  .mobile-card-compact .card-body {
+    padding: 0.75rem !important;
+  }
+  
+  /* Bottoni full-width su mobile */
+  .mobile-btn-block {
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* Desktop Specific Utilities */
+@media (min-width: 768px) {
+  .desktop-flex-row { 
+    flex-direction: row !important; 
+  }
+  
+  .desktop-text-left { 
+    text-align: left !important; 
+  }
+  
+  .desktop-justify-between {
+    justify-content: space-between !important;
+  }
+  
+  .desktop-align-center {
+    align-items: center !important;
+  }
+}
+
+/* Tablet Specific */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .tablet-col-6 {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+  }
+}
+
+/* Utility per nascondere elementi */
+.hide-mobile {
+  display: block !important;
+}
+
+.hide-desktop {
+  display: none !important;
+}
+
+@media (max-width: 767.98px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  
+  .hide-desktop {
+    display: block !important;
+  }
+}
+
+/* Animazioni smooth per transizioni responsive */
+.responsive-transition {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Grid responsive standardizzato */
+.responsive-grid-2-4 {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 768px) {
+  .responsive-grid-2-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+} 

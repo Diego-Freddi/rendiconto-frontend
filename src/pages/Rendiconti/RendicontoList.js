@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRendiconto } from '../../contexts/RendicontoContext';
+import { useResponsive } from '../../hooks/useResponsive';
 import './RendicontoList.css';
 
 const RendicontoList = () => {
   const navigate = useNavigate();
+  const { isMobile } = useResponsive();
   const { 
     rendiconti, 
     loading, 
@@ -115,32 +117,31 @@ const RendicontoList = () => {
   }
 
   return (
-    <div className="container-fluid">
-      {/* Header */}
-      <div className="row mb-4">
-        <div className="col-12">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <h2 className="mb-1">Gestione Rendiconti</h2>
-              <p className="text-muted mb-0">
-                Visualizza e gestisci tutti i tuoi rendiconti
-              </p>
-            </div>
-            <Link to="/rendiconti/nuovo" className="btn btn-primary">
-              <i className="bi bi-plus-circle me-2"></i>
-              Nuovo Rendiconto
-            </Link>
-          </div>
+    <div>
+      {/* PATTERN D: Header responsive */}
+      <div className={`d-flex ${isMobile ? 'flex-column gap-3' : 'justify-content-between align-items-center'} mb-4`}>
+        <div className={isMobile ? 'text-center' : ''}>
+          <h2 className="mb-1">Gestione Rendiconti</h2>
+          <p className="text-muted mb-0">
+            Visualizza e gestisci tutti i tuoi rendiconti
+          </p>
         </div>
+        <Link 
+          to="/rendiconti/nuovo" 
+          className={`btn btn-primary ${isMobile ? 'mobile-full-width' : ''}`}
+        >
+          <i className="bi bi-plus-circle me-2"></i>
+          Nuovo Rendiconto
+        </Link>
       </div>
 
-      {/* Filtri */}
+      {/* Filtri responsive */}
       <div className="row mb-4">
         <div className="col-12">
           <div className="card">
             <div className="card-body">
               <div className="row g-3">
-                <div className="col-md-3">
+                <div className={`${isMobile ? 'col-12' : 'col-md-3'}`}>
                   <label className="form-label">Cerca</label>
                   <input
                     type="text"
@@ -150,7 +151,7 @@ const RendicontoList = () => {
                     onChange={(e) => handleFilterChange('search', e.target.value)}
                   />
                 </div>
-                <div className="col-md-2">
+                <div className={`${isMobile ? 'col-6' : 'col-md-2'}`}>
                   <label className="form-label">Stato</label>
                   <select
                     className="form-select"
@@ -163,7 +164,7 @@ const RendicontoList = () => {
                     <option value="inviato">Inviato</option>
                   </select>
                 </div>
-                <div className="col-md-2">
+                <div className={`${isMobile ? 'col-6' : 'col-md-2'}`}>
                   <label className="form-label">Anno</label>
                   <select
                     className="form-select"
@@ -176,7 +177,7 @@ const RendicontoList = () => {
                     ))}
                   </select>
                 </div>
-                <div className="col-md-2">
+                <div className={`${isMobile ? 'col-6' : 'col-md-2'}`}>
                   <label className="form-label">Per pagina</label>
                   <select
                     className="form-select"
@@ -188,9 +189,9 @@ const RendicontoList = () => {
                     <option value={50}>50</option>
                   </select>
                 </div>
-                <div className="col-md-3 d-flex align-items-end">
+                <div className={`${isMobile ? 'col-6' : 'col-md-3'} d-flex align-items-end`}>
                   <button
-                    className="btn btn-outline-secondary"
+                    className={`btn btn-outline-secondary ${isMobile ? 'mobile-full-width' : ''}`}
                     onClick={() => setFilters({
                       page: 1,
                       limit: 10,
@@ -200,7 +201,7 @@ const RendicontoList = () => {
                     })}
                   >
                     <i className="bi bi-arrow-clockwise me-2"></i>
-                    Reset Filtri
+                    Reset
                   </button>
                 </div>
               </div>
@@ -209,213 +210,265 @@ const RendicontoList = () => {
         </div>
       </div>
 
-      {/* Lista Rendiconti */}
+      {/* PATTERN B: Tabella responsive */}
       <div className="row">
         <div className="col-12">
           <div className="card">
-            <div className="card-header">
-              <h6 className="mb-0">
-                <i className="bi bi-list-ul me-2"></i>
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="mb-0">
                 Rendiconti ({pagination.totalItems})
-              </h6>
+              </h5>
+              {loading && (
+                <div className="spinner-border spinner-border-sm text-primary" role="status">
+                  <span className="visually-hidden">Caricamento...</span>
+                </div>
+              )}
             </div>
             <div className="card-body p-0">
-              {rendiconti.length === 0 ? (
-                <div className="text-center py-5">
-                  <i className="bi bi-inbox text-muted" style={{ fontSize: '3rem' }}></i>
-                  <h5 className="mt-3 text-muted">Nessun rendiconto trovato</h5>
-                  <p className="text-muted">
-                    {filters.search || filters.stato || filters.anno 
-                      ? 'Prova a modificare i filtri di ricerca'
-                      : 'Inizia creando il tuo primo rendiconto'
-                    }
-                  </p>
-                  {!filters.search && !filters.stato && !filters.anno && (
-                    <Link to="/rendiconti/nuovo" className="btn btn-primary">
-                      <i className="bi bi-plus-circle me-2"></i>
-                      Crea Primo Rendiconto
-                    </Link>
+              {rendiconti.length > 0 ? (
+                <>
+                  {/* Desktop: Tabella completa */}
+                  {!isMobile && (
+                    <div className="table-responsive">
+                      <table className="table table-hover mb-0">
+                        <thead className="table-light">
+                          <tr>
+                            <th>Beneficiario</th>
+                            <th>R.G.</th>
+                            <th>Anno</th>
+                            <th>Stato</th>
+                            <th>Totale Patrimonio</th>
+                            <th>Ultima modifica</th>
+                            <th width="120">Azioni</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rendiconti.map((rendiconto) => (
+                            <tr key={rendiconto._id}>
+                              <td>
+                                <div>
+                                  <strong>
+                                    {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}
+                                  </strong>
+                                  <br />
+                                  <small className="text-muted">
+                                    {rendiconto.beneficiarioId?.codiceFiscale}
+                                  </small>
+                                </div>
+                              </td>
+                              <td>{rendiconto.datiGenerali?.rg_numero || 'N/A'}</td>
+                              <td>{rendiconto.datiGenerali?.anno}</td>
+                              <td>
+                                <span className={`badge ${getStatusBadge(rendiconto.stato)}`}>
+                                  {rendiconto.stato.charAt(0).toUpperCase() + rendiconto.stato.slice(1)}
+                                </span>
+                              </td>
+                              <td>
+                                <strong>{formatCurrency(rendiconto.beneficiarioId?.totalePatrimonio || 0)}</strong>
+                              </td>
+                              <td>
+                                <small>{formatDate(rendiconto.updatedAt)}</small>
+                              </td>
+                              <td>
+                                <div className="btn-group btn-group-sm">
+                                  <Link
+                                    to={`/rendiconti/${rendiconto._id}`}
+                                    className="btn btn-outline-primary"
+                                    title="Visualizza"
+                                  >
+                                    <i className="bi bi-eye"></i>
+                                  </Link>
+                                  {rendiconto.stato !== 'inviato' && (
+                                    <Link
+                                      to={`/rendiconti/${rendiconto._id}/modifica`}
+                                      className="btn btn-outline-secondary"
+                                      title="Modifica"
+                                    >
+                                      <i className="bi bi-pencil"></i>
+                                    </Link>
+                                  )}
+                                  <button
+                                    className="btn btn-outline-danger"
+                                    onClick={() => handleDelete(rendiconto._id)}
+                                    title="Elimina"
+                                  >
+                                    <i className="bi bi-trash"></i>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
-                </div>
-              ) : (
-                <div className="table-container">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>Beneficiario</th>
-                        <th>Periodo</th>
-                        <th>R.G.</th>
-                        <th>Stato</th>
-                        <th>Patrimonio</th>
-                        <th>Entrate</th>
-                        <th>Uscite</th>
-                        <th>Creato</th>
-                        <th>Azioni</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+
+                  {/* Mobile: Card stack */}
+                  {isMobile && (
+                    <div className="p-3">
                       {rendiconti.map((rendiconto) => (
-                        <tr key={rendiconto._id}>
-                          <td>
-                            <div>
-                              <div className="fw-bold">
-                                {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}
+                        <div key={rendiconto._id} className="card mb-3 mobile-card-compact">
+                          <div className="card-body">
+                            <div className="d-flex justify-content-between align-items-start mb-2">
+                              <div>
+                                <h6 className="card-title mb-1">
+                                  {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome}
+                                </h6>
+                                <small className="text-muted d-block">
+                                  {rendiconto.beneficiarioId?.codiceFiscale}
+                                </small>
+                                <small className="text-muted">
+                                  R.G. {rendiconto.datiGenerali?.rg_numero || 'N/A'} - Anno {rendiconto.datiGenerali?.anno}
+                                </small>
                               </div>
-                              <small className="text-muted">
-                                {rendiconto.beneficiarioId?.codiceFiscale}
-                              </small>
+                              <span className={`badge ${getStatusBadge(rendiconto.stato)}`}>
+                                {rendiconto.stato.charAt(0).toUpperCase() + rendiconto.stato.slice(1)}
+                              </span>
                             </div>
-                          </td>
-                          <td>
-                            <span className="badge bg-light text-dark">
-                              {rendiconto.periodoFormattato || 
-                                (rendiconto.datiGenerali?.dataInizio && rendiconto.datiGenerali?.dataFine ? 
-                                  `${formatDate(rendiconto.datiGenerali.dataInizio)} - ${formatDate(rendiconto.datiGenerali.dataFine)}` : 
-                                  `${rendiconto.datiGenerali?.anno || 'N/A'}`
-                                )
-                              }
-                            </span>
-                          </td>
-                          <td>
-                            <code>{rendiconto.datiGenerali?.rg_numero}</code>
-                          </td>
-                          <td>
-                            <span className={`badge ${getStatusBadge(rendiconto.stato)}`}>
-                              {rendiconto.stato}
-                            </span>
-                          </td>
-                          <td>{formatCurrency(rendiconto.beneficiarioId?.totalePatrimonio || 0)}</td>
-                          <td className="text-success">{formatCurrency(rendiconto.totaleEntrate)}</td>
-                          <td className="text-danger">{formatCurrency(rendiconto.totaleUscite)}</td>
-                          <td>{formatDate(rendiconto.createdAt)}</td>
-                          <td>
-                            <div className="btn-group btn-group-sm">
+                            
+                            <div className="row mb-2">
+                              <div className="col-6">
+                                <small className="text-muted">Patrimonio:</small>
+                                <div className="fw-bold">{formatCurrency(rendiconto.beneficiarioId?.totalePatrimonio || 0)}</div>
+                              </div>
+                              <div className="col-6">
+                                <small className="text-muted">Ultima modifica:</small>
+                                <div className="small">{formatDate(rendiconto.updatedAt)}</div>
+                              </div>
+                            </div>
+
+                            <div className="d-flex gap-2">
                               <Link
                                 to={`/rendiconti/${rendiconto._id}`}
-                                className="btn btn-outline-primary"
-                                title="Visualizza"
+                                className="btn btn-outline-primary btn-sm flex-fill"
                               >
-                                <i className="bi bi-eye"></i>
+                                <i className="bi bi-eye me-1"></i>
+                                Visualizza
                               </Link>
                               {rendiconto.stato !== 'inviato' && (
                                 <Link
                                   to={`/rendiconti/${rendiconto._id}/modifica`}
-                                  className="btn btn-outline-secondary"
-                                  title="Modifica"
+                                  className="btn btn-outline-secondary btn-sm flex-fill"
                                 >
-                                  <i className="bi bi-pencil"></i>
+                                  <i className="bi bi-pencil me-1"></i>
+                                  Modifica
                                 </Link>
                               )}
-                              <div className="btn-group btn-group-sm dropdown-container">
-                                <button
-                                  className="btn btn-outline-secondary"
-                                  onClick={(e) => toggleDropdown(e, rendiconto._id)}
-                                  title="Altro"
-                                >
-                                  <i className="bi bi-three-dots"></i>
-                                </button>
-                                {openDropdown === rendiconto._id && (
-                                  <div 
-                                    className="dropdown-menu dropdown-menu-end show dropdown-menu-table"
-                                    style={{
-                                      position: 'fixed',
-                                      top: `${dropdownPosition.top}px`,
-                                      left: `${dropdownPosition.left}px`,
-                                      zIndex: 9999
-                                    }}
-                                  >
-                                    {rendiconto.stato === 'bozza' && (
-                                      <button
-                                        className="dropdown-item"
-                                        onClick={() => handleStatusChange(rendiconto._id, 'completato')}
-                                      >
-                                        <i className="bi bi-check-circle me-2"></i>
-                                        Marca come Completato
-                                      </button>
-                                    )}
-                                    {rendiconto.stato === 'completato' && (
-                                      <>
-                                        <button
-                                          className="dropdown-item"
-                                          onClick={() => handleStatusChange(rendiconto._id, 'inviato')}
-                                        >
-                                          <i className="bi bi-send me-2"></i>
-                                          Marca come Inviato
-                                        </button>
-                                        <button
-                                          className="dropdown-item"
-                                          onClick={() => handleStatusChange(rendiconto._id, 'bozza')}
-                                        >
-                                          <i className="bi bi-arrow-left me-2"></i>
-                                          Torna a Bozza
-                                        </button>
-                                      </>
-                                    )}
-                                    <hr className="dropdown-divider" />
-                                    {rendiconto.stato !== 'inviato' && (
-                                      <button
-                                        className="dropdown-item text-danger"
-                                        onClick={() => handleDelete(rendiconto._id)}
-                                      >
-                                        <i className="bi bi-trash me-2"></i>
-                                        Elimina
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
+                              <button
+                                className="btn btn-outline-danger btn-sm"
+                                onClick={() => handleDelete(rendiconto._id)}
+                                title="Elimina"
+                              >
+                                <i className="bi bi-trash"></i>
+                              </button>
                             </div>
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-5">
+                  <i className="bi bi-file-earmark-text text-muted" style={{ fontSize: '3rem' }}></i>
+                  <h5 className="mt-3 text-muted">Nessun rendiconto trovato</h5>
+                  <p className="text-muted">
+                    {filters.search || filters.stato || filters.anno ? 
+                      'Prova a modificare i filtri di ricerca' : 
+                      'Inizia creando il tuo primo rendiconto'
+                    }
+                  </p>
+                  <Link to="/rendiconti/nuovo" className="btn btn-primary">
+                    <i className="bi bi-plus-circle me-2"></i>
+                    Crea Rendiconto
+                  </Link>
                 </div>
               )}
             </div>
+
+            {/* Paginazione */}
+            {pagination.totalPages > 1 && (
+              <div className="card-footer">
+                <nav aria-label="Paginazione rendiconti">
+                  <ul className={`pagination ${isMobile ? 'pagination-sm justify-content-center' : 'justify-content-between align-items-center'} mb-0`}>
+                    {!isMobile && (
+                      <li className="page-item">
+                        <span className="page-link text-muted">
+                          Pagina {pagination.currentPage} di {pagination.totalPages} 
+                          ({pagination.totalItems} totali)
+                        </span>
+                      </li>
+                    )}
+                    
+                    <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage === 1}
+                      >
+                        <i className="bi bi-chevron-left"></i>
+                        {!isMobile && ' Precedente'}
+                      </button>
+                    </li>
+                    
+                    {isMobile && (
+                      <li className="page-item">
+                        <span className="page-link text-muted">
+                          {pagination.currentPage}/{pagination.totalPages}
+                        </span>
+                      </li>
+                    )}
+                    
+                    <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage === pagination.totalPages}
+                      >
+                        {!isMobile && 'Successiva '}
+                        <i className="bi bi-chevron-right"></i>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Paginazione */}
-      {pagination.totalPages > 1 && (
-        <div className="row mt-4">
-          <div className="col-12">
-            <nav>
-              <ul className="pagination justify-content-center">
-                <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => handlePageChange(pagination.currentPage - 1)}
-                    disabled={pagination.currentPage === 1}
-                  >
-                    Precedente
-                  </button>
-                </li>
-                
-                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
-                  <li key={page} className={`page-item ${pagination.currentPage === page ? 'active' : ''}`}>
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageChange(page)}
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-                
-                <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => handlePageChange(pagination.currentPage + 1)}
-                    disabled={pagination.currentPage === pagination.totalPages}
-                  >
-                    Successiva
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
+      {/* Dropdown menu per azioni (mantenuto per compatibilità) */}
+      {openDropdown && (
+        <div
+          className="dropdown-menu show"
+          style={{
+            position: 'absolute',
+            top: dropdownPosition.top,
+            left: dropdownPosition.left,
+            zIndex: 1000
+          }}
+        >
+          <button
+            className="dropdown-item"
+            onClick={() => handleStatusChange(openDropdown, 'bozza')}
+          >
+            <i className="bi bi-pencil-square me-2"></i>
+            Segna come Bozza
+          </button>
+          <button
+            className="dropdown-item"
+            onClick={() => handleStatusChange(openDropdown, 'completato')}
+          >
+            <i className="bi bi-check-circle me-2"></i>
+            Segna come Completato
+          </button>
+          <button
+            className="dropdown-item"
+            onClick={() => handleStatusChange(openDropdown, 'inviato')}
+          >
+            <i className="bi bi-send me-2"></i>
+            Segna come Inviato
+          </button>
         </div>
       )}
     </div>

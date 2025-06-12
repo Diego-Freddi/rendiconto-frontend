@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
-const Navbar = () => {
+const Navbar = ({ onToggleSidebar, isMobile }) => {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -11,9 +11,21 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom">
       <div className="container-fluid">
+        {/* Hamburger menu per mobile */}
+        {isMobile && (
+          <button
+            className="btn btn-outline-secondary me-3"
+            type="button"
+            onClick={onToggleSidebar}
+            aria-label="Toggle sidebar"
+          >
+            <i className="bi bi-list"></i>
+          </button>
+        )}
+
         {/* Titolo pagina */}
         <div className="navbar-brand mb-0 h1">
-          Gestione Rendiconti
+          {isMobile ? 'Rendiconti' : 'Gestione Rendiconti'}
         </div>
 
         {/* Menu utente */}
@@ -26,7 +38,10 @@ const Navbar = () => {
               aria-expanded="false"
             >
               <i className="bi bi-person-circle me-2"></i>
-              {user?.nome} {user?.cognome}
+              {isMobile ? 
+                `${user?.nome?.charAt(0)}${user?.cognome?.charAt(0)}` : 
+                `${user?.nome} ${user?.cognome}`
+              }
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
               <li>

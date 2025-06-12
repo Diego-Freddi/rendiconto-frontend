@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useRendiconto } from '../../contexts/RendicontoContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useResponsive } from '../../hooks/useResponsive';
 import { toast } from 'react-toastify';
 import { pdf } from '@react-pdf/renderer';
 import RendicontoPDF from '../../components/PDF/RendicontoPDF';
@@ -11,6 +12,7 @@ const RendicontoDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isMobile } = useResponsive();
   const { fetchRendiconto, loading } = useRendiconto();
   const [rendiconto, setRendiconto] = useState(null);
 
@@ -128,70 +130,68 @@ const RendicontoDetail = () => {
   const usciteRaggruppate = raggruppaPerCategoria(contoEconomico?.uscite || []);
 
   return (
-    <div className="container-fluid">
-      {/* Header con azioni */}
-      <div className="row mb-4">
-        <div className="col-12">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <h2 className="mb-1">Dettagli Rendiconto</h2>
-              <p className="text-muted mb-0">
-                {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome} - 
-                {rendiconto.periodoFormattato || 
-                  (datiGenerali?.dataInizio && datiGenerali?.dataFine ? 
-                    `${formatDate(datiGenerali.dataInizio)} - ${formatDate(datiGenerali.dataFine)}` : 
-                    `Anno ${datiGenerali?.anno || 'N/A'}`
-                  )
-                }
-              </p>
-            </div>
-            <div className="btn-group">
-              <Link 
-                to="/rendiconti" 
-                className="btn btn-outline-secondary"
-              >
-                <i className="bi bi-arrow-left me-2"></i>
-                Indietro
-              </Link>
-              {rendiconto.stato !== 'inviato' && (
-                <Link 
-                  to={`/rendiconti/${id}/modifica`} 
-                  className="btn btn-primary"
-                >
-                  <i className="bi bi-pencil me-2"></i>
-                  Modifica
-                </Link>
-              )}
-              <button 
-                className="btn btn-success"
-                onClick={handleDownloadPDF}
-              >
-                <i className="bi bi-file-pdf me-2"></i>
-                Esporta PDF
-              </button>
-            </div>
-          </div>
+    <div>
+      {/* PATTERN D: Header responsive */}
+      <div className={`d-flex ${isMobile ? 'flex-column gap-3' : 'justify-content-between align-items-center'} mb-4`}>
+        <div className={isMobile ? 'text-center' : ''}>
+          <h2 className="mb-1">Dettagli Rendiconto</h2>
+          <p className="text-muted mb-0">
+            {rendiconto.beneficiarioId?.nome} {rendiconto.beneficiarioId?.cognome} - 
+            {rendiconto.periodoFormattato || 
+              (datiGenerali?.dataInizio && datiGenerali?.dataFine ? 
+                `${formatDate(datiGenerali.dataInizio)} - ${formatDate(datiGenerali.dataFine)}` : 
+                `Anno ${datiGenerali?.anno || 'N/A'}`
+              )
+            }
+          </p>
+        </div>
+        
+        {/* PATTERN C: Azioni responsive */}
+        <div className={`${isMobile ? 'd-grid gap-2' : 'btn-group'}`}>
+          <Link 
+            to="/rendiconti" 
+            className="btn btn-outline-secondary"
+          >
+            <i className="bi bi-arrow-left me-2"></i>
+            Indietro
+          </Link>
+          {rendiconto.stato !== 'inviato' && (
+            <Link 
+              to={`/rendiconti/${id}/modifica`} 
+              className="btn btn-primary"
+            >
+              <i className="bi bi-pencil me-2"></i>
+              Modifica
+            </Link>
+          )}
+          <button 
+            className="btn btn-success"
+            onClick={handleDownloadPDF}
+          >
+            <i className="bi bi-file-pdf me-2"></i>
+            Esporta PDF
+          </button>
         </div>
       </div>
 
-      {/* Documento stile PDF */}
+      {/* Documento responsive */}
       <div className="row justify-content-center">
-        <div className="col-12 col-lg-10 col-xl-8">
+        <div className={`${isMobile ? 'col-12' : 'col-12 col-lg-10 col-xl-8'}`}>
           
           {/* PAGINA 1: DATI GENERALI */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
               
-              {/* INTESTAZIONE */}
-              <div className="text-center mb-5">
-                <h1 className="display-6 fw-bold text-primary mb-3">
+              {/* INTESTAZIONE RESPONSIVE */}
+              <div className="text-center mb-4">
+                <h1 className={`${isMobile ? 'h3' : 'display-6'} fw-bold text-primary mb-3`}>
                   MODELLO DI RENDICONTO
                 </h1>
                 <div className="border-top border-bottom py-3">
-                  <h4 className="mb-1">
+                  <h4 className={`${isMobile ? 'h5' : 'h4'} mb-1`}>
                     Amministrazione di sostegno/tutela: R.G. n. {datiGenerali?.rg_numero || '_______________'}
                   </h4>
-                  <p className="text-muted mb-0">
+                  <p className={`text-muted mb-0 ${isMobile ? 'small' : ''}`}>
                     Periodo: {rendiconto.periodoFormattato || 
                       (datiGenerali?.dataInizio && datiGenerali?.dataFine ? 
                         `${formatDate(datiGenerali.dataInizio)} - ${formatDate(datiGenerali.dataFine)}` : 
@@ -202,111 +202,99 @@ const RendicontoDetail = () => {
                 </div>
               </div>
 
-              {/* SEZIONE 1: DATI GENERALI */}
-              <div className="mb-5">
-                <h3 className="border-bottom pb-2 mb-4 text-primary">
-                  <i className="bi bi-person-badge me-2"></i>
-                  1. DATI GENERALI
-                </h3>
-                
-                <div className="row">
-                  <div className="col-md-6 mb-4">
-                    <div className="card h-100">
-                      <div className="card-header bg-light">
-                        <h5 className="card-title mb-0">
-                          <i className="bi bi-person me-2"></i>
-                          Beneficiario/Interdetto
-                        </h5>
-                      </div>
-                      <div className="card-body">
-                        <table className="table table-borderless table-sm">
-                          <tbody>
-                            <tr>
-                              <td className="fw-bold">Nome:</td>
-                              <td>{rendiconto.beneficiarioId?.nome || 'Non specificato'}</td>
-                            </tr>
-                            <tr>
-                              <td className="fw-bold">Cognome:</td>
-                              <td>{rendiconto.beneficiarioId?.cognome || 'Non specificato'}</td>
-                            </tr>
-                            <tr>
-                              <td className="fw-bold">Codice Fiscale:</td>
-                              <td className="font-monospace">{rendiconto.beneficiarioId?.codiceFiscale || 'Non specificato'}</td>
-                            </tr>
-                            <tr>
-                              <td className="fw-bold">Data di Nascita:</td>
-                              <td>{formatDate(rendiconto.beneficiarioId?.dataNascita) || 'Non specificata'}</td>
-                            </tr>
-                            <tr>
-                              <td className="fw-bold">Luogo di Nascita:</td>
-                              <td>{rendiconto.beneficiarioId?.luogoNascita || 'Non specificato'}</td>
-                            </tr>
-                            <tr>
-                              <td className="fw-bold">Indirizzo:</td>
-                              <td>{formatAddress(rendiconto.beneficiarioId?.indirizzo) || 'Non specificato'}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+              {/* DATI GENERALI - Layout responsive */}
+              <div className="row mb-4">
+                <div className="col-12">
+                  <h5 className="text-primary border-bottom pb-2 mb-3">
+                    <i className="bi bi-person-badge me-2"></i>
+                    Dati Generali
+                  </h5>
+                </div>
+              </div>
+
+              <div className="row g-3 mb-4">
+                <div className={`${isMobile ? 'col-12' : 'col-md-6'}`}>
+                  <div className="card h-100">
+                    <div className="card-header bg-light">
+                      <h6 className="mb-0">
+                        <i className="bi bi-person me-2"></i>
+                        Beneficiario
+                      </h6>
+                    </div>
+                    <div className="card-body">
+                      <p className="mb-2">
+                        <strong>Nome:</strong> {rendiconto.beneficiarioId?.nome || 'N/A'}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Cognome:</strong> {rendiconto.beneficiarioId?.cognome || 'N/A'}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Codice Fiscale:</strong> 
+                        <code className="ms-2">{rendiconto.beneficiarioId?.codiceFiscale || 'N/A'}</code>
+                      </p>
+                      <p className="mb-2">
+                        <strong>Data di nascita:</strong> {formatDate(rendiconto.beneficiarioId?.dataNascita)}
+                      </p>
+                      <p className="mb-0">
+                        <strong>Luogo di nascita:</strong> {rendiconto.beneficiarioId?.luogoNascita || 'N/A'}
+                      </p>
                     </div>
                   </div>
+                </div>
 
-                  <div className="col-md-6 mb-4">
-                    <div className="card h-100">
-                      <div className="card-header bg-light">
-                        <h5 className="card-title mb-0">
-                          <i className="bi bi-person-check me-2"></i>
-                          Amministratore di Sostegno
-                        </h5>
-                      </div>
-                      <div className="card-body">
-                        <table className="table table-borderless table-sm">
-                          <tbody>
-                            <tr>
-                              <td className="fw-bold">Nome:</td>
-                              <td>{user?.nome || 'Non specificato'}</td>
-                            </tr>
-                            <tr>
-                              <td className="fw-bold">Cognome:</td>
-                              <td>{user?.cognome || 'Non specificato'}</td>
-                            </tr>
-                            <tr>
-                              <td className="fw-bold">Codice Fiscale:</td>
-                              <td className="font-monospace">{user?.codiceFiscale || 'Non specificato'}</td>
-                            </tr>
-                            <tr>
-                              <td className="fw-bold">Email:</td>
-                              <td>{user?.email || 'Non specificato'}</td>
-                            </tr>
-                            {user?.professione && (
-                              <tr>
-                                <td className="fw-bold">Professione:</td>
-                                <td>{user.professione}</td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
+                <div className={`${isMobile ? 'col-12' : 'col-md-6'}`}>
+                  <div className="card h-100">
+                    <div className="card-header bg-light">
+                      <h6 className="mb-0">
+                        <i className="bi bi-shield-check me-2"></i>
+                        Amministratore
+                      </h6>
+                    </div>
+                    <div className="card-body">
+                      <p className="mb-2">
+                        <strong>Nome:</strong> {user?.nome || 'N/A'}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Cognome:</strong> {user?.cognome || 'N/A'}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Email:</strong> {user?.email || 'N/A'}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Telefono:</strong> {user?.telefono || 'N/A'}
+                      </p>
+                      <p className="mb-0">
+                        <strong>Indirizzo:</strong> {formatAddress(user?.indirizzo) || 'N/A'}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* SEZIONE 2: CONDIZIONI PERSONALI */}
-              <div className="mb-5">
-                <h3 className="border-bottom pb-2 mb-4 text-primary">
-                  <i className="bi bi-heart-pulse me-2"></i>
-                  2. CONDIZIONI PERSONALI DEL BENEFICIARIO
-                </h3>
-                <div className="card">
-                  <div className="card-body">
-                    {rendiconto.beneficiarioId?.condizioniPersonali ? (
-                      <div className="text-justify" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                        {rendiconto.beneficiarioId.condizioniPersonali}
-                      </div>
-                    ) : (
-                      <p className="text-muted fst-italic">Nessuna informazione inserita</p>
-                    )}
+              {/* CONDIZIONI PERSONALI */}
+              <div className="row mb-4">
+                <div className="col-12">
+                  <h5 className="text-primary border-bottom pb-2 mb-3">
+                    <i className="bi bi-heart me-2"></i>
+                    Condizioni Personali del Beneficiario
+                  </h5>
+                  <div className="card">
+                    <div className="card-body">
+                      {rendiconto.beneficiarioId?.condizioniPersonali ? (
+                        <div 
+                          className="text-justify" 
+                          style={{ 
+                            whiteSpace: 'pre-wrap', 
+                            lineHeight: '1.6',
+                            fontSize: isMobile ? '0.9rem' : '1rem'
+                          }}
+                        >
+                          {rendiconto.beneficiarioId.condizioniPersonali}
+                        </div>
+                      ) : (
+                        <p className="text-muted fst-italic">Nessuna informazione inserita</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -316,7 +304,7 @@ const RendicontoDetail = () => {
 
           {/* PAGINA 2: BENI IMMOBILI */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-house me-2"></i>
                 3. SITUAZIONE PATRIMONIALE - BENI IMMOBILI
@@ -368,7 +356,7 @@ const RendicontoDetail = () => {
 
           {/* PAGINA 3: BENI MOBILI */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-car-front me-2"></i>
                 3. SITUAZIONE PATRIMONIALE - BENI MOBILI
@@ -420,7 +408,7 @@ const RendicontoDetail = () => {
 
           {/* PAGINA 4: TITOLI, FONDI E CONTI */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-bank me-2"></i>
                 3. SITUAZIONE PATRIMONIALE - TITOLI, FONDI E CONTI CORRENTI
@@ -472,7 +460,7 @@ const RendicontoDetail = () => {
 
           {/* PAGINA 5: ENTRATE */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-plus-circle me-2"></i>
                 4. CONTO ECONOMICO - ENTRATE
@@ -545,7 +533,7 @@ const RendicontoDetail = () => {
 
           {/* PAGINA 6: USCITE */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-dash-circle me-2"></i>
                 4. CONTO ECONOMICO - USCITE
@@ -618,7 +606,7 @@ const RendicontoDetail = () => {
 
           {/* PAGINA 7: SITUAZIONE COMPLESSIVA E FIRMA */}
           <div className="card shadow-sm mb-4">
-            <div className="card-body p-4" style={{ backgroundColor: '#fafafa', minHeight: '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-calculator me-2"></i>
                 5. SITUAZIONE COMPLESSIVA
@@ -627,50 +615,120 @@ const RendicontoDetail = () => {
               {/* Riepilogo Totali */}
               <div className="row mb-5">
                 <div className="col-12">
-                  <div className="table-responsive">
-                    <table className="table table-bordered table-lg">
-                      <tbody>
-                        <tr className="table-info">
-                          <td className="fw-bold fs-5">VALORE TOTALE DEL PATRIMONIO</td>
-                          <td className="text-end fw-bold fs-5">
-                            {formatCurrency(
-                                              calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili) +
-                calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili) +
-                calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti)
-                            )}
-                          </td>
-                        </tr>
-                        <tr className="table-success">
-                          <td className="fw-bold fs-5">TOTALE ENTRATE</td>
-                          <td className="text-end fw-bold fs-5 text-success">
-                            {formatCurrency(calculateTotal(contoEconomico?.entrate))}
-                          </td>
-                        </tr>
-                        <tr className="table-danger">
-                          <td className="fw-bold fs-5">TOTALE USCITE</td>
-                          <td className="text-end fw-bold fs-5 text-danger">
-                            {formatCurrency(calculateTotal(contoEconomico?.uscite))}
-                          </td>
-                        </tr>
-                        <tr className={`table-${
+                  {/* Desktop: Tabella completa */}
+                  {!isMobile && (
+                    <div className="table-responsive">
+                      <table className="table table-bordered table-lg">
+                        <tbody>
+                          <tr className="table-info">
+                            <td className="fw-bold fs-5">VALORE TOTALE DEL PATRIMONIO</td>
+                            <td className="text-end fw-bold fs-5">
+                              {formatCurrency(
+                                                calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili) +
+                  calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili) +
+                  calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti)
+                              )}
+                            </td>
+                          </tr>
+                          <tr className="table-success">
+                            <td className="fw-bold fs-5">TOTALE ENTRATE</td>
+                            <td className="text-end fw-bold fs-5 text-success">
+                              {formatCurrency(calculateTotal(contoEconomico?.entrate))}
+                            </td>
+                          </tr>
+                          <tr className="table-danger">
+                            <td className="fw-bold fs-5">TOTALE USCITE</td>
+                            <td className="text-end fw-bold fs-5 text-danger">
+                              {formatCurrency(calculateTotal(contoEconomico?.uscite))}
+                            </td>
+                          </tr>
+                          <tr className={`table-${
+                            (calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)) >= 0 
+                              ? 'success' 
+                              : 'danger'
+                          }`}>
+                            <td className="fw-bold fs-4">SALDO (Entrate - Uscite)</td>
+                            <td className={`text-end fw-bold fs-4 ${
+                              (calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)) >= 0 
+                                ? 'text-success' 
+                                : 'text-danger'
+                            }`}>
+                              {formatCurrency(
+                                calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)
+                              )}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Mobile: Card stack */}
+                  {isMobile && (
+                    <div className="d-grid gap-3">
+                      <div className="card border-info">
+                        <div className="card-body bg-info bg-opacity-10">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <h6 className="card-title mb-0 fw-bold">VALORE TOTALE DEL PATRIMONIO</h6>
+                            <span className="fw-bold fs-5">
+                              {formatCurrency(
+                                                calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili) +
+                  calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili) +
+                  calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti)
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="card border-success">
+                        <div className="card-body bg-success bg-opacity-10">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <h6 className="card-title mb-0 fw-bold">TOTALE ENTRATE</h6>
+                            <span className="fw-bold fs-5 text-success">
+                              {formatCurrency(calculateTotal(contoEconomico?.entrate))}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="card border-danger">
+                        <div className="card-body bg-danger bg-opacity-10">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <h6 className="card-title mb-0 fw-bold">TOTALE USCITE</h6>
+                            <span className="fw-bold fs-5 text-danger">
+                              {formatCurrency(calculateTotal(contoEconomico?.uscite))}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className={`card border-${
+                        (calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)) >= 0 
+                          ? 'success' 
+                          : 'danger'
+                      }`}>
+                        <div className={`card-body bg-${
                           (calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)) >= 0 
                             ? 'success' 
                             : 'danger'
-                        }`}>
-                          <td className="fw-bold fs-4">SALDO (Entrate - Uscite)</td>
-                          <td className={`text-end fw-bold fs-4 ${
-                            (calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)) >= 0 
-                              ? 'text-success' 
-                              : 'text-danger'
-                          }`}>
-                            {formatCurrency(
-                              calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)
-                            )}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                        } bg-opacity-10`}>
+                          <div className="d-flex justify-content-between align-items-center">
+                            <h5 className="card-title mb-0 fw-bold">SALDO (Entrate - Uscite)</h5>
+                            <span className={`fw-bold fs-4 ${
+                              (calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)) >= 0 
+                                ? 'text-success' 
+                                : 'text-danger'
+                            }`}>
+                              {formatCurrency(
+                                calculateTotal(contoEconomico?.entrate) - calculateTotal(contoEconomico?.uscite)
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -685,15 +743,15 @@ const RendicontoDetail = () => {
                   <div className="card-body">
                     {/* Luogo e Data */}
                     <div className="row mb-5">
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold fs-5">Luogo:</label>
-                        <p className="border-bottom pb-2 fs-5" style={{ minHeight: '40px' }}>
+                      <div className={`${isMobile ? 'col-12 mb-3' : 'col-md-6'}`}>
+                        <label className={`form-label fw-bold ${isMobile ? 'fs-6' : 'fs-5'}`}>Luogo:</label>
+                        <p className={`border-bottom pb-2 ${isMobile ? 'fs-6' : 'fs-5'}`} style={{ minHeight: isMobile ? '30px' : '40px' }}>
                           {firma?.luogo || '_'.repeat(30)}
                         </p>
                       </div>
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold fs-5">Data:</label>
-                        <p className="border-bottom pb-2 fs-5" style={{ minHeight: '40px' }}>
+                      <div className={`${isMobile ? 'col-12' : 'col-md-6'}`}>
+                        <label className={`form-label fw-bold ${isMobile ? 'fs-6' : 'fs-5'}`}>Data:</label>
+                        <p className={`border-bottom pb-2 ${isMobile ? 'fs-6' : 'fs-5'}`} style={{ minHeight: isMobile ? '30px' : '40px' }}>
                           {formatDate(firma?.data) || '_'.repeat(20)}
                         </p>
                       </div>
@@ -702,7 +760,7 @@ const RendicontoDetail = () => {
                     {/* Note aggiuntive */}
                     {firma?.noteAggiuntive && (
                       <div className="mb-5">
-                        <label className="form-label fw-bold fs-5">Note aggiuntive:</label>
+                        <label className={`form-label fw-bold ${isMobile ? 'fs-6' : 'fs-5'}`}>Note aggiuntive:</label>
                         <div className="border rounded p-3 bg-light" style={{ minHeight: '100px' }}>
                           <div style={{ whiteSpace: 'pre-wrap' }}>
                             {firma.noteAggiuntive}
@@ -713,14 +771,14 @@ const RendicontoDetail = () => {
 
                     {/* Firma */}
                     <div className="text-end mt-5">
-                      <label className="form-label fw-bold fs-5">Firma dell'Amministratore:</label>
-                      <div className="border-bottom pb-3 mb-3" style={{ minHeight: '100px' }}>
+                      <label className={`form-label fw-bold ${isMobile ? 'fs-6' : 'fs-5'}`}>Firma dell'Amministratore:</label>
+                      <div className="border-bottom pb-3 mb-3" style={{ minHeight: isMobile ? '80px' : '100px' }}>
                         {/* Placeholder per firma - in futuro qui ci sarà l'immagine della firma */}
-                        <div className="text-center text-muted fst-italic pt-4">
+                        <div className={`text-center text-muted fst-italic pt-4 ${isMobile ? 'small' : ''}`}>
                           {firma?.firmaAmministratore ? 'Firma confermata' : 'Firma non presente'}
                         </div>
                       </div>
-                      <div className="fs-5 fw-bold">
+                      <div className={`${isMobile ? 'fs-6' : 'fs-5'} fw-bold`}>
                         {user?.nome} {user?.cognome}
                       </div>
                     </div>
@@ -728,17 +786,22 @@ const RendicontoDetail = () => {
                 </div>
               </div>
 
-              {/* FOOTER CON INFO STATO */}
-              <div className="border-top pt-4 mt-5">
-                <div className="row align-items-center">
-                  <div className="col">
+              {/* FOOTER CON INFO STATO - Responsive */}
+              <div className="border-top pt-3 mt-4">
+                <div className={`${isMobile ? 'text-center' : 'row align-items-center'}`}>
+                  <div className={isMobile ? 'mb-2' : 'col'}>
                     <small className="text-muted">
                       <i className="bi bi-info-circle me-1"></i>
-                      Documento creato il {formatDate(rendiconto.createdAt)} - 
-                      Ultima modifica: {formatDate(rendiconto.updatedAt)}
+                      Documento creato il {formatDate(rendiconto.createdAt)}
+                      {!isMobile && ` - Ultima modifica: ${formatDate(rendiconto.updatedAt)}`}
                     </small>
+                    {isMobile && (
+                      <small className="text-muted d-block">
+                        Ultima modifica: {formatDate(rendiconto.updatedAt)}
+                      </small>
+                    )}
                   </div>
-                  <div className="col-auto">
+                  <div className={isMobile ? '' : 'col-auto'}>
                     <span className={`badge fs-6 ${
                       rendiconto.stato === 'completato' ? 'bg-success' :
                       rendiconto.stato === 'inviato' ? 'bg-primary' :

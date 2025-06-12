@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useBeneficiario } from '../../contexts/BeneficiarioContext';
+import { useResponsive } from '../../hooks/useResponsive';
 
 const BeneficiariList = () => {
   const navigate = useNavigate();
+  const { isMobile } = useResponsive();
   const {
     beneficiari,
     loading,
@@ -115,28 +117,41 @@ const BeneficiariList = () => {
     return eta;
   };
 
-  return (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-12">
-          {/* Header */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="mb-0">
-              <i className="bi bi-people me-2"></i>
-              Gestione Beneficiari
-            </h2>
-            <Link to="/beneficiari/nuovo" className="btn btn-primary">
-              <i className="bi bi-plus-lg me-2"></i>
-              Nuovo Beneficiario
-            </Link>
-          </div>
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('it-IT');
+  };
 
-          {/* Filtri e Ricerca */}
-          <div className="card mb-4">
+  return (
+    <div>
+      {/* PATTERN D: Header responsive */}
+      <div className={`d-flex ${isMobile ? 'flex-column gap-3' : 'justify-content-between align-items-center'} mb-4`}>
+        <div className={isMobile ? 'text-center' : ''}>
+          <h2 className="mb-1">
+            <i className="bi bi-people me-2"></i>
+            Gestione Beneficiari
+          </h2>
+          <p className="text-muted mb-0">
+            Visualizza e gestisci tutti i beneficiari
+          </p>
+        </div>
+        <Link 
+          to="/beneficiari/nuovo" 
+          className={`btn btn-primary ${isMobile ? 'mobile-full-width' : ''}`}
+        >
+          <i className="bi bi-plus-lg me-2"></i>
+          Nuovo Beneficiario
+        </Link>
+      </div>
+
+      {/* Filtri responsive */}
+      <div className="row mb-4">
+        <div className="col-12">
+          <div className="card">
             <div className="card-body">
               <form onSubmit={handleSearch}>
                 <div className="row g-3">
-                  <div className="col-md-6">
+                  <div className={`${isMobile ? 'col-12' : 'col-md-6'}`}>
                     <label htmlFor="search" className="form-label">Ricerca</label>
                     <input
                       type="text"
@@ -148,7 +163,7 @@ const BeneficiariList = () => {
                     />
                   </div>
                   
-                  <div className="col-md-3">
+                  <div className={`${isMobile ? 'col-6' : 'col-md-3'}`}>
                     <label htmlFor="attivi" className="form-label">Stato</label>
                     <select
                       className="form-select"
@@ -162,14 +177,17 @@ const BeneficiariList = () => {
                     </select>
                   </div>
 
-                  <div className="col-md-3 d-flex align-items-end gap-2">
-                    <button type="submit" className="btn btn-outline-primary">
+                  <div className={`${isMobile ? 'col-6' : 'col-md-3'} d-flex align-items-end ${isMobile ? 'flex-column' : 'gap-2'}`}>
+                    <button 
+                      type="submit" 
+                      className={`btn btn-outline-primary ${isMobile ? 'mobile-full-width mb-2' : ''}`}
+                    >
                       <i className="bi bi-search me-2"></i>
                       Cerca
                     </button>
                     <button 
                       type="button" 
-                      className="btn btn-outline-secondary"
+                      className={`btn btn-outline-secondary ${isMobile ? 'mobile-full-width' : ''}`}
                       onClick={handleResetFilters}
                     >
                       <i className="bi bi-arrow-clockwise me-2"></i>
@@ -180,194 +198,266 @@ const BeneficiariList = () => {
               </form>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Lista Beneficiari */}
+      {/* PATTERN B: Tabella responsive */}
+      <div className="row">
+        <div className="col-12">
           <div className="card">
-            <div className="card-header">
-              <h5 className="card-title mb-0">
-                <i className="bi bi-list me-2"></i>
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="mb-0">
                 Lista Beneficiari
                 {pagination.totalItems > 0 && (
                   <span className="badge bg-primary ms-2">{pagination.totalItems}</span>
                 )}
               </h5>
-            </div>
-            <div className="card-body">
-              {loading ? (
-                <div className="text-center py-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Caricamento...</span>
-                  </div>
-                  <p className="mt-2 text-muted">Caricamento beneficiari...</p>
+              {loading && (
+                <div className="spinner-border spinner-border-sm text-primary" role="status">
+                  <span className="visually-hidden">Caricamento...</span>
                 </div>
-              ) : beneficiari.length === 0 ? (
-                <div className="text-center py-5">
-                  <i className="bi bi-people display-1 text-muted"></i>
-                  <h4 className="mt-3 text-muted">Nessun beneficiario trovato</h4>
-                  <p className="text-muted">
-                    {filters.search || filters.attivi !== 'tutti' 
-                      ? 'Prova a modificare i filtri di ricerca'
-                      : 'Inizia aggiungendo il tuo primo beneficiario'
-                    }
-                  </p>
-                  {!filters.search && filters.attivi === 'tutti' && (
-                    <Link to="/beneficiari/nuovo" className="btn btn-primary">
-                      <i className="bi bi-plus-lg me-2"></i>
-                      Aggiungi Beneficiario
-                    </Link>
-                  )}
-                </div>
-              ) : (
-                <>
-                  {/* Tabella Beneficiari */}
-                  <div className="table-responsive">
-                    <table className="table table-hover">
-                      <thead className="table-light">
-                        <tr>
-                          <th>Nome Completo</th>
-                          <th>Codice Fiscale</th>
-                          <th>Età</th>
-                          <th>Luogo Nascita</th>
-                          <th>Stato</th>
-                          <th>Rendiconti</th>
-                          <th>Azioni</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {beneficiari.map((beneficiario) => (
-                          <tr key={beneficiario._id}>
-                            <td>
-                              <div className="d-flex align-items-center">
-                                <div className="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
-                                  {beneficiario.nome.charAt(0)}{beneficiario.cognome.charAt(0)}
-                                </div>
-                                <div>
-                                  <div className="fw-medium">
-                                    {beneficiario.nome} {beneficiario.cognome}
-                                  </div>
-                                  {beneficiario.note && (
-                                    <small className="text-muted">
-                                      <i className="bi bi-sticky me-1"></i>
-                                      {beneficiario.note.substring(0, 50)}
-                                      {beneficiario.note.length > 50 ? '...' : ''}
-                                    </small>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <code className="text-dark">{beneficiario.codiceFiscale}</code>
-                            </td>
-                            <td>
-                              {calcolaEta(beneficiario.dataNascita)} anni
-                            </td>
-                            <td>{beneficiario.luogoNascita || 'N/A'}</td>
-                            <td>
-                              <span className={`badge ${beneficiario.isActive ? 'bg-success' : 'bg-danger'}`}>
-                                {beneficiario.isActive ? 'Attivo' : 'Inattivo'}
-                              </span>
-                            </td>
-                            <td>
-                              <Link 
-                                to="/rendiconti"
-                                className="btn btn-sm btn-outline-info"
-                              >
-                                <i className="bi bi-file-earmark-text me-1"></i>
-                                Visualizza
-                              </Link>
-                            </td>
-                            <td>
-                              <div className="btn-group" role="group">
-                                <Link
-                                  to={`/beneficiari/${beneficiario._id}`}
-                                  className="btn btn-sm btn-outline-primary"
-                                  title="Visualizza dettagli"
-                                >
-                                  <i className="bi bi-eye"></i>
-                                </Link>
-                                <Link
-                                  to={`/beneficiari/${beneficiario._id}/modifica`}
-                                  className="btn btn-sm btn-outline-warning"
-                                  title="Modifica"
-                                >
-                                  <i className="bi bi-pencil"></i>
-                                </Link>
-                                {!beneficiario.isActive ? (
-                                  <button
-                                    className="btn btn-sm btn-outline-success"
-                                    onClick={() => handleAttiva(beneficiario._id)}
-                                    title="Riattiva"
-                                  >
-                                    <i className="bi bi-check-circle"></i>
-                                  </button>
-                                ) : (
-                                  <button
-                                    className="btn btn-sm btn-outline-danger"
-                                    onClick={() => handleDeleteClick(beneficiario)}
-                                    title="Elimina"
-                                  >
-                                    <i className="bi bi-trash"></i>
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Paginazione */}
-                  {pagination.totalPages > 1 && (
-                    <nav aria-label="Paginazione beneficiari" className="mt-4">
-                      <ul className="pagination justify-content-center">
-                        <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
-                          <button
-                            className="page-link"
-                            onClick={() => handlePageChange(pagination.currentPage - 1)}
-                            disabled={pagination.currentPage === 1}
-                          >
-                            <i className="bi bi-chevron-left"></i>
-                          </button>
-                        </li>
-                        
-                        {[...Array(pagination.totalPages)].map((_, index) => {
-                          const pageNumber = index + 1;
-                          return (
-                            <li
-                              key={pageNumber}
-                              className={`page-item ${pagination.currentPage === pageNumber ? 'active' : ''}`}
-                            >
-                              <button
-                                className="page-link"
-                                onClick={() => handlePageChange(pageNumber)}
-                              >
-                                {pageNumber}
-                              </button>
-                            </li>
-                          );
-                        })}
-                        
-                        <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
-                          <button
-                            className="page-link"
-                            onClick={() => handlePageChange(pagination.currentPage + 1)}
-                            disabled={pagination.currentPage === pagination.totalPages}
-                          >
-                            <i className="bi bi-chevron-right"></i>
-                          </button>
-                        </li>
-                      </ul>
-                    </nav>
-                  )}
-                </>
               )}
             </div>
+            <div className="card-body p-0">
+              {beneficiari.length > 0 ? (
+                <>
+                  {/* Desktop: Tabella completa */}
+                  {!isMobile && (
+                    <div className="table-responsive">
+                      <table className="table table-hover mb-0">
+                        <thead className="table-light">
+                          <tr>
+                            <th>Nome Completo</th>
+                            <th>Codice Fiscale</th>
+                            <th>Età</th>
+                            <th>Luogo Nascita</th>
+                            <th>Stato</th>
+                            <th>Rendiconti</th>
+                            <th>Azioni</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {beneficiari.map((beneficiario) => (
+                            <tr key={beneficiario._id}>
+                              <td>
+                                <div className="d-flex align-items-center">
+                                  <div className="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                    {beneficiario.nome.charAt(0)}{beneficiario.cognome.charAt(0)}
+                                  </div>
+                                  <div>
+                                    <div className="fw-medium">
+                                      {beneficiario.nome} {beneficiario.cognome}
+                                    </div>
+                                    {beneficiario.note && (
+                                      <small className="text-muted">
+                                        <i className="bi bi-sticky me-1"></i>
+                                        {beneficiario.note.substring(0, 50)}
+                                        {beneficiario.note.length > 50 ? '...' : ''}
+                                      </small>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <code className="text-dark">{beneficiario.codiceFiscale}</code>
+                              </td>
+                              <td>
+                                {calcolaEta(beneficiario.dataNascita)} anni
+                              </td>
+                              <td>{beneficiario.luogoNascita || 'N/A'}</td>
+                              <td>
+                                <span className={`badge ${beneficiario.isActive ? 'bg-success' : 'bg-danger'}`}>
+                                  {beneficiario.isActive ? 'Attivo' : 'Inattivo'}
+                                </span>
+                              </td>
+                              <td>
+                                <Link 
+                                  to="/rendiconti"
+                                  className="btn btn-sm btn-outline-info"
+                                >
+                                  <i className="bi bi-file-earmark-text me-1"></i>
+                                  Visualizza
+                                </Link>
+                              </td>
+                              <td>
+                                <div className="btn-group" role="group">
+                                  <Link
+                                    to={`/beneficiari/${beneficiario._id}`}
+                                    className="btn btn-sm btn-outline-primary"
+                                    title="Visualizza dettagli"
+                                  >
+                                    <i className="bi bi-eye"></i>
+                                  </Link>
+                                  <Link
+                                    to={`/beneficiari/${beneficiario._id}/modifica`}
+                                    className="btn btn-sm btn-outline-warning"
+                                    title="Modifica"
+                                  >
+                                    <i className="bi bi-pencil"></i>
+                                  </Link>
+                                  {!beneficiario.isActive ? (
+                                    <button
+                                      className="btn btn-sm btn-outline-success"
+                                      onClick={() => handleAttiva(beneficiario._id)}
+                                      title="Riattiva"
+                                    >
+                                      <i className="bi bi-check-circle"></i>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      className="btn btn-sm btn-outline-danger"
+                                      onClick={() => handleDeleteClick(beneficiario)}
+                                      title="Elimina"
+                                    >
+                                      <i className="bi bi-trash"></i>
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Mobile: Card stack */}
+                  {isMobile && (
+                    <div className="p-3">
+                      {beneficiari.map((beneficiario) => (
+                        <div key={beneficiario._id} className="card mb-3 mobile-card-compact">
+                          <div className="card-body">
+                            <div className="d-flex justify-content-between align-items-start mb-2">
+                              <div>
+                                <h6 className="card-title mb-1">
+                                  {beneficiario.nome} {beneficiario.cognome}
+                                </h6>
+                                <small className="text-muted d-block">
+                                  {beneficiario.codiceFiscale}
+                                </small>
+                                <small className="text-muted">
+                                  {calcolaEta(beneficiario.dataNascita)} anni
+                                  {beneficiario.luogoNascita && ` • ${beneficiario.luogoNascita}`}
+                                </small>
+                              </div>
+                              <div className="text-end">
+                                <span className={`badge ${beneficiario.isActive ? 'bg-success' : 'bg-danger'} d-block mb-1`}>
+                                  {beneficiario.isActive ? 'Attivo' : 'Inattivo'}
+                                </span>
+                              </div>
+                            </div>
+                            
+
+
+                            <div className="d-flex gap-2">
+                              <Link
+                                to={`/beneficiari/${beneficiario._id}`}
+                                className="btn btn-outline-primary btn-sm flex-fill"
+                              >
+                                <i className="bi bi-eye me-1"></i>
+                                Visualizza
+                              </Link>
+                              <Link
+                                to={`/beneficiari/${beneficiario._id}/modifica`}
+                                className="btn btn-outline-secondary btn-sm flex-fill"
+                              >
+                                <i className="bi bi-pencil me-1"></i>
+                                Modifica
+                              </Link>
+                              {!beneficiario.isActive ? (
+                                <button
+                                  className="btn btn-outline-success btn-sm"
+                                  onClick={() => handleAttiva(beneficiario._id)}
+                                  title="Riattiva"
+                                >
+                                  <i className="bi bi-check-circle"></i>
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn btn-outline-danger btn-sm"
+                                  onClick={() => handleDeleteClick(beneficiario)}
+                                  title="Elimina"
+                                >
+                                  <i className="bi bi-trash"></i>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-5">
+                  <i className="bi bi-people text-muted" style={{ fontSize: '3rem' }}></i>
+                  <h5 className="mt-3 text-muted">Nessun beneficiario trovato</h5>
+                  <p className="text-muted">
+                    {filters.search || filters.attivi !== 'tutti' ? 
+                      'Prova a modificare i filtri di ricerca' : 
+                      'Inizia aggiungendo il tuo primo beneficiario'
+                    }
+                  </p>
+                  <Link to="/beneficiari/nuovo" className="btn btn-primary">
+                    <i className="bi bi-plus-lg me-2"></i>
+                    Aggiungi Beneficiario
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Paginazione */}
+            {pagination.totalPages > 1 && (
+              <div className="card-footer">
+                <nav aria-label="Paginazione beneficiari">
+                  <ul className={`pagination ${isMobile ? 'pagination-sm justify-content-center' : 'justify-content-between align-items-center'} mb-0`}>
+                    {!isMobile && (
+                      <li className="page-item">
+                        <span className="page-link text-muted">
+                          Pagina {pagination.currentPage} di {pagination.totalPages} 
+                          ({pagination.totalItems} totali)
+                        </span>
+                      </li>
+                    )}
+                    
+                    <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage === 1}
+                      >
+                        <i className="bi bi-chevron-left"></i>
+                        {!isMobile && ' Precedente'}
+                      </button>
+                    </li>
+                    
+                    {isMobile && (
+                      <li className="page-item">
+                        <span className="page-link text-muted">
+                          {pagination.currentPage}/{pagination.totalPages}
+                        </span>
+                      </li>
+                    )}
+                    
+                    <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage === pagination.totalPages}
+                      >
+                        {!isMobile && 'Successiva '}
+                        <i className="bi bi-chevron-right"></i>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Modal Conferma Eliminazione */}
+            {/* Modal Conferma Eliminazione */}
       {showDeleteModal && (
         <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog">
