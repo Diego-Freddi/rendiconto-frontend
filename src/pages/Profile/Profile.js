@@ -53,7 +53,15 @@ const Profile = () => {
       // Rimuovi email dal form data (non modificabile)
       const { email, ...dataToUpdate } = formData;
       
-      const result = await updateProfileCompleto(dataToUpdate);
+      // Pulisci i dati vuoti per evitare errori di validazione
+      const cleanedData = {};
+      Object.keys(dataToUpdate).forEach(key => {
+        if (dataToUpdate[key] !== '' && dataToUpdate[key] !== null && dataToUpdate[key] !== undefined) {
+          cleanedData[key] = dataToUpdate[key];
+        }
+      });
+      
+      const result = await updateProfileCompleto(cleanedData);
       
       if (result.success) {
         setIsEditing(false);
