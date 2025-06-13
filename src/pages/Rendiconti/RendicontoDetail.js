@@ -304,302 +304,240 @@ const RendicontoDetail = () => {
 
           {/* PAGINA 2: BENI IMMOBILI */}
           <div className="card shadow-sm mb-4">
-            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-house me-2"></i>
                 3. SITUAZIONE PATRIMONIALE - BENI IMMOBILI
               </h3>
               
-              <div className="table-responsive">
-                <table className="table table-striped table-hover">
-                  <thead className="table-dark">
-                    <tr>
-                      <th style={{ width: '70%' }}>Descrizione</th>
-                      <th className="text-end" style={{ width: '30%' }}>Valore</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili?.length > 0 ? (
-                      rendiconto.beneficiarioId.situazionePatrimoniale.beniImmobili.map((bene, index) => (
-                        <tr key={index}>
-                          <td>{bene.descrizione}</td>
-                          <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="2" className="text-center text-muted fst-italic py-5">
-                          Nessun bene immobile inserito
-                        </td>
-                      </tr>
-                    )}
-                    {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - (rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili?.length || 0)) }).map((_, index) => (
-                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="table-secondary">
-                    <tr>
-                      <th>TOTALE BENI IMMOBILI</th>
-                      <th className="text-end">
-                        {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili))}
-                      </th>
-                    </tr>
-                  </tfoot>
-                </table>
+              {rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili?.length > 0 ? (
+                <div className="list-group list-group-flush">
+                  {rendiconto.beneficiarioId.situazionePatrimoniale.beniImmobili.map((bene, index) => (
+                    <div key={index} className="list-group-item px-0">
+                      <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'}`}>
+                        <div className="flex-grow-1">
+                          <div className="fw-medium">{bene.descrizione}</div>
+                        </div>
+                        <div className={`${isMobile ? 'mt-1' : 'text-end'}`}>
+                          <div className="fw-bold text-primary">
+                            {formatCurrency(bene.valore)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted fst-italic py-5">
+                  Nessun bene immobile inserito
+                </div>
+              )}
+              
+              <div className="border-top pt-3 mt-3">
+                <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-center`}>
+                  <h5 className="mb-0 text-primary">TOTALE BENI IMMOBILI</h5>
+                  <h4 className="mb-0 fw-bold text-primary">
+                    {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniImmobili))}
+                  </h4>
+                </div>
               </div>
             </div>
           </div>
 
           {/* PAGINA 3: BENI MOBILI */}
           <div className="card shadow-sm mb-4">
-            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-car-front me-2"></i>
                 3. SITUAZIONE PATRIMONIALE - BENI MOBILI
               </h3>
               
-              <div className="table-responsive">
-                <table className="table table-striped table-hover">
-                  <thead className="table-dark">
-                    <tr>
-                      <th style={{ width: '70%' }}>Descrizione</th>
-                      <th className="text-end" style={{ width: '30%' }}>Valore</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili?.length > 0 ? (
-                      rendiconto.beneficiarioId.situazionePatrimoniale.beniMobili.map((bene, index) => (
-                        <tr key={index}>
-                          <td>{bene.descrizione}</td>
-                          <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="2" className="text-center text-muted fst-italic py-5">
-                          Nessun bene mobile inserito
-                        </td>
-                      </tr>
-                    )}
-                    {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - (rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili?.length || 0)) }).map((_, index) => (
-                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="table-secondary">
-                    <tr>
-                      <th>TOTALE BENI MOBILI</th>
-                      <th className="text-end">
-                        {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili))}
-                      </th>
-                    </tr>
-                  </tfoot>
-                </table>
+              {rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili?.length > 0 ? (
+                <div className="list-group list-group-flush">
+                  {rendiconto.beneficiarioId.situazionePatrimoniale.beniMobili.map((bene, index) => (
+                    <div key={index} className="list-group-item px-0">
+                      <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'}`}>
+                        <div className="flex-grow-1">
+                          <div className="fw-medium">{bene.descrizione}</div>
+                        </div>
+                        <div className={`${isMobile ? 'mt-1' : 'text-end'}`}>
+                          <div className="fw-bold text-success">
+                            {formatCurrency(bene.valore)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted fst-italic py-5">
+                  Nessun bene mobile inserito
+                </div>
+              )}
+              
+              <div className="border-top pt-3 mt-3">
+                <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-center`}>
+                  <h5 className="mb-0 text-success">TOTALE BENI MOBILI</h5>
+                  <h4 className="mb-0 fw-bold text-success">
+                    {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.beniMobili))}
+                  </h4>
+                </div>
               </div>
             </div>
           </div>
 
           {/* PAGINA 4: TITOLI, FONDI E CONTI */}
           <div className="card shadow-sm mb-4">
-            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-bank me-2"></i>
                 3. SITUAZIONE PATRIMONIALE - TITOLI, FONDI E CONTI CORRENTI
               </h3>
               
-              <div className="table-responsive">
-                <table className="table table-striped table-hover">
-                  <thead className="table-dark">
-                    <tr>
-                      <th style={{ width: '70%' }}>Descrizione</th>
-                      <th className="text-end" style={{ width: '30%' }}>Valore</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti?.length > 0 ? (
-                      rendiconto.beneficiarioId.situazionePatrimoniale.titoliConti.map((bene, index) => (
-                        <tr key={index}>
-                          <td>{bene.descrizione}</td>
-                          <td className="text-end fw-bold">{formatCurrency(bene.valore)}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="2" className="text-center text-muted fst-italic py-5">
-                          Nessun titolo o conto inserito
-                        </td>
-                      </tr>
-                    )}
-                    {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - (rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti?.length || 0)) }).map((_, index) => (
-                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="table-secondary">
-                    <tr>
-                      <th>TOTALE TITOLI E CONTI</th>
-                      <th className="text-end">
-                        {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti))}
-                      </th>
-                    </tr>
-                  </tfoot>
-                </table>
+              {rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti?.length > 0 ? (
+                <div className="list-group list-group-flush">
+                  {rendiconto.beneficiarioId.situazionePatrimoniale.titoliConti.map((bene, index) => (
+                    <div key={index} className="list-group-item px-0">
+                      <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'}`}>
+                        <div className="flex-grow-1">
+                          <div className="fw-medium">{bene.descrizione}</div>
+                        </div>
+                        <div className={`${isMobile ? 'mt-1' : 'text-end'}`}>
+                          <div className="fw-bold text-info">
+                            {formatCurrency(bene.valore)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted fst-italic py-5">
+                  Nessun titolo o conto inserito
+                </div>
+              )}
+              
+              <div className="border-top pt-3 mt-3">
+                <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-center`}>
+                  <h5 className="mb-0 text-info">TOTALE TITOLI E CONTI</h5>
+                  <h4 className="mb-0 fw-bold text-info">
+                    {formatCurrency(calculateTotal(rendiconto.beneficiarioId?.situazionePatrimoniale?.titoliConti))}
+                  </h4>
+                </div>
               </div>
             </div>
           </div>
 
           {/* PAGINA 5: ENTRATE */}
           <div className="card shadow-sm mb-4">
-            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-plus-circle me-2"></i>
                 4. CONTO ECONOMICO - ENTRATE
               </h3>
               
-              <div className="table-responsive">
-                <table className="table table-striped table-hover">
-                  <thead className="table-success">
-                    <tr>
-                      <th style={{ width: '25%' }}>Categoria</th>
-                      <th style={{ width: '45%' }}>Descrizione</th>
-                      <th className="text-end" style={{ width: '30%' }}>Importo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {entrateRaggruppate.length > 0 ? (
-                      entrateRaggruppate.map((entrata, index) => (
-                        <tr key={index}>
-                          <td>
+              {entrateRaggruppate.length > 0 ? (
+                <div className="list-group list-group-flush">
+                  {entrateRaggruppate.map((entrata, index) => (
+                    <div key={index} className="list-group-item px-0">
+                      <div className={`d-flex ${isMobile ? 'flex-column gap-2' : 'justify-content-between align-items-start'}`}>
+                        <div className="flex-grow-1">
+                          <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
                             <span className="badge bg-success bg-opacity-25 text-success">
                               {entrata.categoria}
                             </span>
                             {entrata.numeroVoci > 1 && (
-                              <small className="text-muted ms-2">
+                              <small className="text-muted">
                                 ({entrata.numeroVoci} voci)
                               </small>
                             )}
-                          </td>
-                          <td>
-                            <div>{entrata.descrizioneCompleta}</div>
-                            {entrata.numeroVoci > 1 && (
-                              <small className="text-muted">
-                                Subtotale di {entrata.numeroVoci} voci
-                              </small>
-                            )}
-                          </td>
-                          <td className="text-end fw-bold text-success">
+                          </div>
+                          <div className="fw-medium">{entrata.descrizioneCompleta}</div>
+                          {entrata.numeroVoci > 1 && (
+                            <small className="text-muted">
+                              Subtotale di {entrata.numeroVoci} voci
+                            </small>
+                          )}
+                        </div>
+                        <div className={`${isMobile ? 'align-self-end' : 'text-end'}`}>
+                          <div className="fw-bold text-success fs-5">
                             {formatCurrency(entrata.importo)}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="3" className="text-center text-muted fst-italic py-5">
-                          Nessuna entrata inserita
-                        </td>
-                      </tr>
-                    )}
-                    {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - entrateRaggruppate.length) }).map((_, index) => (
-                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="table-success">
-                    <tr>
-                      <th colSpan="2">TOTALE ENTRATE</th>
-                      <th className="text-end text-success">
-                        {formatCurrency(calculateTotal(contoEconomico?.entrate))}
-                      </th>
-                    </tr>
-                  </tfoot>
-                </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted fst-italic py-5">
+                  Nessuna entrata inserita
+                </div>
+              )}
+              
+              <div className="border-top pt-3 mt-3">
+                <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-center`}>
+                  <h5 className="mb-0 text-success">TOTALE ENTRATE</h5>
+                  <h4 className="mb-0 fw-bold text-success">
+                    {formatCurrency(calculateTotal(contoEconomico?.entrate))}
+                  </h4>
+                </div>
               </div>
             </div>
           </div>
 
           {/* PAGINA 6: USCITE */}
           <div className="card shadow-sm mb-4">
-            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa', minHeight: isMobile ? 'auto' : '800px' }}>
+            <div className={`card-body ${isMobile ? 'p-3' : 'p-4'}`} style={{ backgroundColor: '#fafafa' }}>
               <h3 className="border-bottom pb-2 mb-4 text-primary">
                 <i className="bi bi-dash-circle me-2"></i>
                 4. CONTO ECONOMICO - USCITE
               </h3>
               
-              <div className="table-responsive">
-                <table className="table table-striped table-hover">
-                  <thead className="table-danger">
-                    <tr>
-                      <th style={{ width: '25%' }}>Categoria</th>
-                      <th style={{ width: '45%' }}>Descrizione</th>
-                      <th className="text-end" style={{ width: '30%' }}>Importo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {usciteRaggruppate.length > 0 ? (
-                      usciteRaggruppate.map((uscita, index) => (
-                        <tr key={index}>
-                          <td>
+              {usciteRaggruppate.length > 0 ? (
+                <div className="list-group list-group-flush">
+                  {usciteRaggruppate.map((uscita, index) => (
+                    <div key={index} className="list-group-item px-0">
+                      <div className={`d-flex ${isMobile ? 'flex-column gap-2' : 'justify-content-between align-items-start'}`}>
+                        <div className="flex-grow-1">
+                          <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
                             <span className="badge bg-danger bg-opacity-25 text-danger">
                               {uscita.categoria}
                             </span>
                             {uscita.numeroVoci > 1 && (
-                              <small className="text-muted ms-2">
+                              <small className="text-muted">
                                 ({uscita.numeroVoci} voci)
                               </small>
                             )}
-                          </td>
-                          <td>
-                            <div>{uscita.descrizioneCompleta}</div>
-                            {uscita.numeroVoci > 1 && (
-                              <small className="text-muted">
-                                Subtotale di {uscita.numeroVoci} voci
-                              </small>
-                            )}
-                          </td>
-                          <td className="text-end fw-bold text-danger">
+                          </div>
+                          <div className="fw-medium">{uscita.descrizioneCompleta}</div>
+                          {uscita.numeroVoci > 1 && (
+                            <small className="text-muted">
+                              Subtotale di {uscita.numeroVoci} voci
+                            </small>
+                          )}
+                        </div>
+                        <div className={`${isMobile ? 'align-self-end' : 'text-end'}`}>
+                          <div className="fw-bold text-danger fs-5">
                             {formatCurrency(uscita.importo)}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="3" className="text-center text-muted fst-italic py-5">
-                          Nessuna uscita inserita
-                        </td>
-                      </tr>
-                    )}
-                    {/* Righe vuote per completare la pagina */}
-                    {Array.from({ length: Math.max(0, 20 - usciteRaggruppate.length) }).map((_, index) => (
-                      <tr key={`empty-${index}`} style={{ height: '40px' }}>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="table-danger">
-                    <tr>
-                      <th colSpan="2">TOTALE USCITE</th>
-                      <th className="text-end text-danger">
-                        {formatCurrency(calculateTotal(contoEconomico?.uscite))}
-                      </th>
-                    </tr>
-                  </tfoot>
-                </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted fst-italic py-5">
+                  Nessuna uscita inserita
+                </div>
+              )}
+              
+              <div className="border-top pt-3 mt-3">
+                <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-center`}>
+                  <h5 className="mb-0 text-danger">TOTALE USCITE</h5>
+                  <h4 className="mb-0 fw-bold text-danger">
+                    {formatCurrency(calculateTotal(contoEconomico?.uscite))}
+                  </h4>
+                </div>
               </div>
             </div>
           </div>
@@ -769,16 +707,39 @@ const RendicontoDetail = () => {
                       </div>
                     )}
 
-                    {/* Firma */}
-                    <div className="text-end mt-5">
-                      <label className={`form-label fw-bold ${isMobile ? 'fs-6' : 'fs-5'}`}>Firma dell'Amministratore:</label>
-                      <div className="border-bottom pb-3 mb-3" style={{ minHeight: isMobile ? '80px' : '100px' }}>
-                        {/* Placeholder per firma - in futuro qui ci sarà l'immagine della firma */}
-                        <div className={`text-center text-muted fst-italic pt-4 ${isMobile ? 'small' : ''}`}>
-                          {firma?.firmaAmministratore ? 'Firma confermata' : 'Firma non presente'}
+                    {/* Firma Digitale */}
+                    <div className="mt-5">
+                      <label className={`form-label fw-bold ${isMobile ? 'fs-6' : 'fs-5'} mb-3`}>Firma dell'Amministratore:</label>
+                      
+                      {firma?.firmaDigitale ? (
+                        // Firma digitale presente - visualizzazione read-only
+                        <div className="border rounded p-3 bg-light">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <h6 className="mb-0">
+                              <i className="bi bi-check-circle-fill text-success me-2"></i>
+                              Firma Applicata
+                            </h6>
+                          </div>
+                          
+                          <div className="text-center mb-3">
+                            <img
+                              src={firma.firmaDigitale.immagine}
+                              alt="Firma applicata"
+                              className="img-fluid"
+                              style={{ maxHeight: isMobile ? '60px' : '80px', maxWidth: '200px' }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div className={`${isMobile ? 'fs-6' : 'fs-5'} fw-bold`}>
+                      ) : (
+                        // Nessuna firma digitale presente
+                        <div className="border-bottom pb-3 mb-3" style={{ minHeight: isMobile ? '80px' : '100px' }}>
+                          <div className={`text-center text-muted fst-italic pt-4 ${isMobile ? 'small' : ''}`}>
+                            {firma?.firmaAmministratore ? 'Firma confermata (non digitale)' : 'Firma non presente'}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className={`text-end mt-3 ${isMobile ? 'fs-6' : 'fs-5'} fw-bold`}>
                         {user?.nome} {user?.cognome}
                       </div>
                     </div>
