@@ -35,7 +35,7 @@ const Login = () => {
   }
 
   const onSubmit = async (data) => {
-    const result = await login(data.email, data.password);
+    await login(data.email, data.password);
     // Il redirect viene gestito automaticamente dal context
   };
 

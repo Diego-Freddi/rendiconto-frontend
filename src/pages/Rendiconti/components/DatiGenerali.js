@@ -7,9 +7,7 @@ const DatiGenerali = () => {
   const { 
     register, 
     formState: { errors }, 
-    watch,
-    setValue,
-    getValues
+    watch
   } = useFormContext();
 
   const { user } = useAuth();

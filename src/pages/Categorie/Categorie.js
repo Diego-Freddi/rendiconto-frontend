@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useCategorie } from '../../contexts/CategoriaContext';
 import { toast } from 'react-toastify';
 
@@ -9,8 +9,7 @@ const Categorie = () => {
     loading, 
     createCategoria, 
     updateCategoria, 
-    deleteCategoria,
-    fetchCategorie 
+    deleteCategoria
   } = useCategorie();
 
   const [showModal, setShowModal] = useState(false);
@@ -98,7 +97,7 @@ const Categorie = () => {
   const categorieEntrate = categoriePersonalizzate.filter(cat => cat.tipo === 'ENTRATE');
 
   return (
-    <div className="container-fluid">
+    <div>
       <div className="row">
         <div className="col-12">
           {/* Header */}

@@ -123,7 +123,7 @@ const RendicontoDetail = () => {
     );
   }
 
-  const { datiGenerali, condizioniPersonali, situazionePatrimoniale, contoEconomico, firma } = rendiconto;
+  const { datiGenerali, contoEconomico, firma } = rendiconto;
 
   // Raggruppa le voci per categoria
   const entrateRaggruppate = raggruppaPerCategoria(contoEconomico?.entrate || []);

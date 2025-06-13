@@ -8,7 +8,6 @@ const BeneficiarioForm = () => {
   const isEdit = Boolean(id);
   
   const {
-    currentBeneficiario,
     loading,
     fetchBeneficiario,
     createBeneficiario,

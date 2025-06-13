@@ -38,7 +38,7 @@ const Sidebar = ({ isOpen, isMobile, onClose }) => {
 
   return (
     <div 
-      className="bg-dark text-white"
+      className="bg-dark text-white sidebar-container"
       style={{
         width: '250px',
         minHeight: '100vh',
@@ -75,23 +75,10 @@ const Sidebar = ({ isOpen, isMobile, onClose }) => {
             to={item.path}
             onClick={handleNavClick}
             className={({ isActive }) =>
-              `nav-link text-white d-flex align-items-center py-2 px-3 rounded mb-1 text-decoration-none ${
+              `sidebar-link nav-link text-white d-flex align-items-center py-2 px-3 rounded mb-1 text-decoration-none ${
                 isActive ? 'bg-primary' : ''
               }`
             }
-            style={{
-              transition: 'background-color 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              if (!e.currentTarget.classList.contains('bg-primary')) {
-                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!e.currentTarget.classList.contains('bg-primary')) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }
-            }}
           >
             <i className={`bi ${item.icon} me-3`}></i>
             {item.label}

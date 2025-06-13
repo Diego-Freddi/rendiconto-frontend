@@ -4,13 +4,10 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useRendiconto } from '../../contexts/RendicontoContext';
-import { useAuth } from '../../contexts/AuthContext';
 import { useBeneficiario } from '../../contexts/BeneficiarioContext';
 
 // Componenti delle sezioni
 import DatiGenerali from './components/DatiGenerali';
-import CondizioniPersonali from './components/CondizioniPersonali';
-import SituazionePatrimoniale from './components/SituazionePatrimoniale';
 import ContoEconomico from './components/ContoEconomico';
 import Firma from './components/Firma';
 
@@ -72,18 +69,15 @@ const schema = yup.object({
 const RendicontoForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { 
-    currentRendiconto, 
+    currentRendiconto,
     createRendiconto, 
     updateRendiconto, 
     fetchRendiconto,
     loading 
   } = useRendiconto();
   const { 
-    beneficiari, 
-    fetchBeneficiari,
-    loading: loadingBeneficiari 
+    fetchBeneficiari
   } = useBeneficiario();
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -141,7 +135,7 @@ const RendicontoForm = () => {
     mode: 'onChange'
   });
 
-  const { handleSubmit, reset, watch, formState: { isDirty } } = methods;
+  const { handleSubmit, reset } = methods;
 
   // Carica beneficiari all'avvio
   useEffect(() => {
@@ -203,28 +197,7 @@ const RendicontoForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]); // fetchRendiconto non incluso nelle dipendenze per evitare loop infiniti
 
-  // Auto-save disabilitato temporaneamente per debug
-  // useEffect(() => {
-  //   if (!isDirty || !isEditing || !id || id === 'nuovo') return;
-
-  //   const interval = setInterval(() => {
-  //     const formData = methods.getValues();
-  //     if (formData && isDirty) {
-  //       onAutoSave(formData);
-  //     }
-  //   }, 30000);
-
-  //   return () => clearInterval(interval);
-  // }, [isDirty, isEditing, id, methods]);
-
   // Auto-save
-  const onAutoSave = async (data) => {
-    if (isEditing && currentRendiconto?._id) {
-      await updateRendiconto(currentRendiconto._id, data);
-    }
-  };
-
-  // Submit finale
   const onSubmit = async (data) => {
     try {
       // Determina il tipo di salvataggio

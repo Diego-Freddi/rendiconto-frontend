@@ -36,9 +36,9 @@ export const RendicontoProvider = ({ children }) => {
         }
       });
 
-      const response = await axios.get(`/rendiconti?${params.toString()}`);
-      setRendiconti(response.data.rendiconti);
-      setPagination(response.data.pagination);
+      const { data } = await axios.get(`/rendiconti?${params.toString()}`);
+      setRendiconti(data.rendiconti);
+      setPagination(data.pagination);
       
     } catch (error) {
       const message = error.response?.data?.message || 'Errore durante il caricamento dei rendiconti';
@@ -118,7 +118,7 @@ export const RendicontoProvider = ({ children }) => {
   const updateStatoRendiconto = async (id, stato) => {
     try {
       setLoading(true);
-      const response = await axios.patch(`/rendiconti/${id}/stato`, { stato });
+      await axios.patch(`/rendiconti/${id}/stato`, { stato });
       
       toast.success('Stato aggiornato con successo!');
       

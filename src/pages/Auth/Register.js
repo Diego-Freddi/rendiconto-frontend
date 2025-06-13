@@ -53,7 +53,7 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     const { confirmPassword, ...userData } = data;
-    const result = await registerUser(userData);
+    await registerUser(userData);
     // Il redirect viene gestito automaticamente dal context
   };
 

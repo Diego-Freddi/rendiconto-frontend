@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useRendiconto } from '../../contexts/RendicontoContext';
 import { useResponsive } from '../../hooks/useResponsive';
 import './RendicontoList.css';
 
 const RendicontoList = () => {
-  const navigate = useNavigate();
   const { isMobile } = useResponsive();
   const { 
     rendiconti, 
@@ -25,7 +24,6 @@ const RendicontoList = () => {
   });
 
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
   // Carica rendiconti al mount e quando cambiano i filtri
   useEffect(() => {
@@ -64,26 +62,6 @@ const RendicontoList = () => {
   const handleStatusChange = async (id, newStatus) => {
     await updateStatoRendiconto(id, newStatus);
     setOpenDropdown(null);
-  };
-
-  const toggleDropdown = (e, rendicontoId) => {
-    e.stopPropagation();
-    
-    if (openDropdown === rendicontoId) {
-      setOpenDropdown(null);
-    } else {
-      // Calcola la posizione del bottone
-      const rect = e.target.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-      
-      setDropdownPosition({
-        top: rect.bottom + scrollTop + 5, // 5px sotto il bottone
-        left: rect.right + scrollLeft - 150 // Allineato a destra, larghezza menu ~150px
-      });
-      
-      setOpenDropdown(rendicontoId);
-    }
   };
 
   const getStatusBadge = (stato) => {
@@ -443,8 +421,6 @@ const RendicontoList = () => {
           className="dropdown-menu show"
           style={{
             position: 'absolute',
-            top: dropdownPosition.top,
-            left: dropdownPosition.left,
             zIndex: 1000
           }}
         >

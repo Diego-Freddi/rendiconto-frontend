@@ -19,3 +19,31 @@ code {
   font-size: 14px;
   font-weight: 600;
 }
+
+/* Sidebar styles */
+.sidebar-container {
+  flex-shrink: 0;
+}
+
+.sidebar-link {
+  background: transparent !important;
+  color: #fff !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+}
+
+.sidebar-link.bg-primary,
+.sidebar-link.active {
+  background: #0d6efd !important;
+  color: #fff !important;
+}
+
+.sidebar-link.bg-primary:hover,
+.sidebar-link.active:hover {
+  background: #0d6efd !important;
+  color: #fff !important;
+}
